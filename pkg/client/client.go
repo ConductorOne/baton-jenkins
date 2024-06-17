@@ -41,13 +41,13 @@ type auth struct {
 func NewClient() *JenkinsClient {
 	return &JenkinsClient{
 		httpClient: &uhttp.BaseHttpClient{},
-		baseUrl:    "http://localhost:7990",
+		baseUrl:    "http://localhost:8080",
 		auth: &auth{
 			user:        "",
 			password:    "",
 			bearerToken: "",
 		},
-		jenkinsCache: NewGoCache(30, 30),
+		jenkinsCache: NewGoCache(10, 10),
 	}
 }
 
@@ -144,7 +144,7 @@ func New(ctx context.Context, baseUrl string, bitbucketClient *JenkinsClient) (*
 		return nil, fmt.Errorf("the url : %s is not valid", baseUrl)
 	}
 
-	// basic authentication or bearerToken
+	// basic authentication or token
 	dc := JenkinsClient{
 		httpClient: cli,
 		baseUrl:    baseUrl,
