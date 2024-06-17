@@ -51,18 +51,18 @@ func NewClient() *JenkinsClient {
 	}
 }
 
-func (d *JenkinsClient) WithUser(bitbucketUsername string) *JenkinsClient {
-	d.auth.user = bitbucketUsername
+func (d *JenkinsClient) WithUser(jenkinsUsername string) *JenkinsClient {
+	d.auth.user = jenkinsUsername
 	return d
 }
 
-func (d *JenkinsClient) WithPassword(bitbucketPassword string) *JenkinsClient {
-	d.auth.password = bitbucketPassword
+func (d *JenkinsClient) WithPassword(jenkinsPassword string) *JenkinsClient {
+	d.auth.password = jenkinsPassword
 	return d
 }
 
-func (d *JenkinsClient) WithBearerToken(bitbucketToken string) *JenkinsClient {
-	d.auth.bearerToken = bitbucketToken
+func (d *JenkinsClient) WithBearerToken(jenkinsToken string) *JenkinsClient {
+	d.auth.bearerToken = jenkinsToken
 	return d
 }
 
@@ -128,11 +128,11 @@ func isValidUrl(baseUrl string) bool {
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
-func New(ctx context.Context, baseUrl string, bitbucketClient *JenkinsClient) (*JenkinsClient, error) {
+func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*JenkinsClient, error) {
 	var (
-		clientId     = bitbucketClient.getUser()
-		clientSecret = bitbucketClient.getPWD()
-		clientToken  = bitbucketClient.getToken()
+		clientId     = jenkinsClient.getUser()
+		clientSecret = jenkinsClient.getPWD()
+		clientToken  = jenkinsClient.getToken()
 	)
 	httpClient, err := uhttp.NewClient(ctx, uhttp.WithLogger(true, ctxzap.Extract(ctx)))
 	if err != nil {
