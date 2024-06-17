@@ -11,7 +11,7 @@ import (
 type nodeBuilder struct{}
 
 func (o *nodeBuilder) ResourceType(ctx context.Context) *v2.ResourceType {
-	return userResourceType
+	return resourceTypeNode
 }
 
 // List returns all the users from the database as resource objects.

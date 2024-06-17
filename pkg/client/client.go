@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/conductorone/baton-sdk/pkg/uhttp"
@@ -157,4 +158,48 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 	}
 
 	return &dc, nil
+}
+
+// GetUsers
+// Get all users. Only authenticated users may call this resource.
+// https://developer.atlassian.com/server/bitbucket/rest/v819/api-group-system-maintenance/#api-api-latest-users-get
+func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
+	var (
+		nodeData NodesAPIData
+	)
+	// endpointUrl, err := url.JoinPath(d.baseUrl, allUsersEndpoint)
+	// if err != nil {
+	// 	return nil, Page{}, err
+	// }
+	endpointUrl := "http://localhost:8080/computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed]"
+	uri, err := url.Parse(endpointUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := d.httpClient.NewRequest(ctx,
+		http.MethodGet,
+		uri,
+		uhttp.WithAcceptJSONHeader(),
+		uhttp.WithHeader("Accept", "application/xml"),
+		WithAuthorization(d.getUser(), d.getPWD(), d.getToken()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&nodeData))
+	if err != nil {
+		return nil, &JenkinsError{
+			ErrorMessage:     err.Error(),
+			ErrorDescription: err.Error(),
+			ErrorCode:        resp.StatusCode,
+			ErrorSummary:     fmt.Sprint(resp.Body),
+			ErrorLink:        endpointUrl,
+		}
+	}
+
+	defer resp.Body.Close()
+
+	return nodeData.Computer, nil
 }
