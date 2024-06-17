@@ -163,9 +163,8 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 	return &dc, nil
 }
 
-// GetUsers
-// Get all users. Only authenticated users may call this resource.
-// https://developer.atlassian.com/server/bitbucket/rest/v819/api-group-system-maintenance/#api-api-latest-users-get
+// GetNodes
+// Get all nodes. Only authenticated users may call this resource.
 func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 	var (
 		nodeData NodesAPIData
