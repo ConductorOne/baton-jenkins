@@ -4,18 +4,22 @@ import (
 	"context"
 	"io"
 
+	"github.com/conductorone/baton-jenkins/pkg/client"
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 	"github.com/conductorone/baton-sdk/pkg/annotations"
 	"github.com/conductorone/baton-sdk/pkg/connectorbuilder"
 )
 
-type Connector struct{}
+type Connector struct {
+	client *client.JenkinsClient
+}
 
 // ResourceSyncers returns a ResourceSyncer for each resource type that should be synced from the upstream service.
 func (d *Connector) ResourceSyncers(ctx context.Context) []connectorbuilder.ResourceSyncer {
 	return []connectorbuilder.ResourceSyncer{
 		newUserBuilder(),
 		newJobBuilder(),
+		newNodeBuilder(),
 	}
 }
 
@@ -40,6 +44,16 @@ func (d *Connector) Validate(ctx context.Context) (annotations.Annotations, erro
 }
 
 // New returns a new instance of the connector.
-func New(ctx context.Context) (*Connector, error) {
-	return &Connector{}, nil
+func New(ctx context.Context, baseUrl string, jenkinsClient *client.JenkinsClient) (*Connector, error) {
+	var err error
+	if jenkinsClient.CheckCredentials() {
+		jenkinsClient, err = client.New(ctx, baseUrl, jenkinsClient)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &Connector{
+		client: jenkinsClient,
+	}, nil
 }
