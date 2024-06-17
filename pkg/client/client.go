@@ -33,6 +33,9 @@ func (b *JenkinsError) Error() string {
 }
 
 // GET - http://{baseurl}/computer/api/json
+const (
+	allNodes = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed]"
+)
 
 type auth struct {
 	user, password string
@@ -167,11 +170,7 @@ func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 	var (
 		nodeData NodesAPIData
 	)
-	// endpointUrl, err := url.JoinPath(d.baseUrl, allUsersEndpoint)
-	// if err != nil {
-	// 	return nil, Page{}, err
-	// }
-	endpointUrl := "http://localhost:8080/computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed]"
+	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allNodes)
 	uri, err := url.Parse(endpointUrl)
 	if err != nil {
 		return nil, err
