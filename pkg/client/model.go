@@ -17,3 +17,16 @@ type Computer struct {
 type AssignedLabels struct {
 	Name string `json:"name"`
 }
+
+type JobsAPIData struct {
+	Class string `json:"_class"`
+	Jobs  []Job  `json:"jobs"`
+}
+
+type Job struct {
+	Class     string `json:"_class"`
+	Name      string `json:"name"`
+	URL       string `json:"url"`
+	Buildable bool   `json:"buildable"`
+	Color     string `json:"color"`
+}

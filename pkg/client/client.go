@@ -35,6 +35,7 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/computer/api/json
 const (
 	allNodes = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
+	allJobs  = "api/json?pretty&tree=jobs[name,url,color,buildable]"
 )
 
 type auth struct {
@@ -166,9 +167,7 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 // GetNodes
 // Get all nodes. Only authenticated users may call this resource.
 func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
-	var (
-		nodeData NodesAPIData
-	)
+	var nodeData NodesAPIData
 	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allNodes)
 	uri, err := url.Parse(endpointUrl)
 	if err != nil {
@@ -200,4 +199,41 @@ func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 	defer resp.Body.Close()
 
 	return nodeData.Computer, nil
+}
+
+// GetJobs
+// Get all jobs. Only authenticated users may call this resource.
+func (d *JenkinsClient) GetJobs(ctx context.Context) ([]Job, error) {
+	var jobData JobsAPIData
+	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allJobs)
+	uri, err := url.Parse(endpointUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := d.httpClient.NewRequest(ctx,
+		http.MethodGet,
+		uri,
+		uhttp.WithAcceptJSONHeader(),
+		uhttp.WithHeader("Accept", "application/xml"),
+		WithAuthorization(d.getUser(), d.getPWD(), d.getToken()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&jobData))
+	if err != nil {
+		return nil, &JenkinsError{
+			ErrorMessage:     err.Error(),
+			ErrorDescription: err.Error(),
+			ErrorCode:        resp.StatusCode,
+			ErrorSummary:     fmt.Sprint(resp.Body),
+			ErrorLink:        endpointUrl,
+		}
+	}
+
+	defer resp.Body.Close()
+
+	return jobData.Jobs, nil
 }

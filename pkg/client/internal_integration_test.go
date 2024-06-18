@@ -37,6 +37,26 @@ func TestJenkinsClient_GetNodes(t *testing.T) {
 	assert.NotNil(t, nodes)
 }
 
+func TestJenkinsClient_GetJobs(t *testing.T) {
+	if userName == "" && password == "" {
+		t.Skip()
+	}
+
+	d := &JenkinsClient{
+		auth: &auth{
+			user:        userName,
+			password:    password,
+			bearerToken: "",
+		},
+		httpClient:   getClientForTesting(ctx),
+		baseUrl:      baseUrl,
+		jenkinsCache: GoCache{},
+	}
+	nodes, err := d.GetJobs(ctx)
+	assert.Nil(t, err)
+	assert.NotNil(t, nodes)
+}
+
 func getClientForTesting(ctx context.Context) *uhttp.BaseHttpClient {
 	httpClient, _ := uhttp.NewClient(ctx, uhttp.WithLogger(true, ctxzap.Extract(ctx)))
 	return uhttp.NewBaseHttpClient(httpClient)
