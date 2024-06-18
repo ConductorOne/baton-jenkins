@@ -202,7 +202,7 @@ func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 	return nodeData.Computer, nil
 }
 
-// GetViews
+// GetJobs
 // Get all jobs. Only authenticated users may call this resource.
 func (d *JenkinsClient) GetJobs(ctx context.Context) ([]Job, error) {
 	var jobData JobsAPIData
