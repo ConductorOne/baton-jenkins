@@ -41,3 +41,21 @@ type View struct {
 	Name  string `json:"name"`
 	URL   string `json:"url"`
 }
+
+type UsersAPIData struct {
+	Class string  `json:"_class"`
+	Users []Users `json:"users"`
+}
+
+type Users struct {
+	LastChange interface{} `json:"lastChange"`
+	Project    interface{} `json:"project"`
+	User       User        `json:"user"`
+}
+
+type User struct {
+	AbsoluteURL string      `json:"absoluteUrl"`
+	Description interface{} `json:"description"`
+	FullName    string      `json:"fullName"`
+	ID          string      `json:"id"`
+}
