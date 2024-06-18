@@ -22,17 +22,8 @@ func TestJenkinsClient_GetNodes(t *testing.T) {
 		t.Skip()
 	}
 
-	d := &JenkinsClient{
-		auth: &auth{
-			user:        userName,
-			password:    password,
-			bearerToken: "",
-		},
-		httpClient:   getClientForTesting(ctx),
-		baseUrl:      baseUrl,
-		jenkinsCache: GoCache{},
-	}
-	nodes, err := d.GetNodes(ctx)
+	cli := getJenkinsClientForTesting()
+	nodes, err := cli.GetNodes(ctx)
 	assert.Nil(t, err)
 	assert.NotNil(t, nodes)
 }
@@ -42,7 +33,19 @@ func TestJenkinsClient_GetJobs(t *testing.T) {
 		t.Skip()
 	}
 
-	d := &JenkinsClient{
+	cli := getJenkinsClientForTesting()
+	nodes, err := cli.GetJobs(ctx)
+	assert.Nil(t, err)
+	assert.NotNil(t, nodes)
+}
+
+func getClientForTesting(ctx context.Context) *uhttp.BaseHttpClient {
+	httpClient, _ := uhttp.NewClient(ctx, uhttp.WithLogger(true, ctxzap.Extract(ctx)))
+	return uhttp.NewBaseHttpClient(httpClient)
+}
+
+func getJenkinsClientForTesting() *JenkinsClient {
+	return &JenkinsClient{
 		auth: &auth{
 			user:        userName,
 			password:    password,
@@ -52,12 +55,4 @@ func TestJenkinsClient_GetJobs(t *testing.T) {
 		baseUrl:      baseUrl,
 		jenkinsCache: GoCache{},
 	}
-	nodes, err := d.GetJobs(ctx)
-	assert.Nil(t, err)
-	assert.NotNil(t, nodes)
-}
-
-func getClientForTesting(ctx context.Context) *uhttp.BaseHttpClient {
-	httpClient, _ := uhttp.NewClient(ctx, uhttp.WithLogger(true, ctxzap.Extract(ctx)))
-	return uhttp.NewBaseHttpClient(httpClient)
 }
