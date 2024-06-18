@@ -169,36 +169,49 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 	return &jc, nil
 }
 
-// GetNodes
-// Get all nodes. Only authenticated users may call this resource.
-func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
-	var nodeData NodesAPIData
-	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allNodes)
+func getRequest(ctx context.Context, cli *JenkinsClient, baseUrl, apiUrl string) (*http.Request, string, error) {
+	endpointUrl := fmt.Sprintf("%s/%s", baseUrl, apiUrl)
 	uri, err := url.Parse(endpointUrl)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	req, err := d.httpClient.NewRequest(ctx,
+	req, err := cli.httpClient.NewRequest(ctx,
 		http.MethodGet,
 		uri,
 		uhttp.WithAcceptJSONHeader(),
 		uhttp.WithHeader("Accept", "application/xml"),
-		WithAuthorization(d.getUser(), d.getPWD(), d.getToken()),
+		WithAuthorization(cli.getUser(), cli.getPWD(), cli.getToken()),
 	)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return req, endpointUrl, nil
+}
+
+func getCustomError(err error, resp *http.Response, endpointUrl string) *JenkinsError {
+	return &JenkinsError{
+		ErrorMessage:     err.Error(),
+		ErrorDescription: err.Error(),
+		ErrorCode:        resp.StatusCode,
+		ErrorSummary:     fmt.Sprint(resp.Body),
+		ErrorLink:        endpointUrl,
+	}
+}
+
+// GetNodes
+// Get all nodes. Only authenticated users may call this resource.
+func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
+	var nodeData NodesAPIData
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allNodes)
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&nodeData))
 	if err != nil {
-		return nil, &JenkinsError{
-			ErrorMessage:     err.Error(),
-			ErrorDescription: err.Error(),
-			ErrorCode:        resp.StatusCode,
-			ErrorSummary:     fmt.Sprint(resp.Body),
-			ErrorLink:        endpointUrl,
-		}
+		return nil, getCustomError(err, resp, endpointUrl)
 	}
 
 	defer resp.Body.Close()
@@ -210,32 +223,14 @@ func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 // Get all jobs. Only authenticated users may call this resource.
 func (d *JenkinsClient) GetJobs(ctx context.Context) ([]Job, error) {
 	var jobData JobsAPIData
-	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allJobs)
-	uri, err := url.Parse(endpointUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := d.httpClient.NewRequest(ctx,
-		http.MethodGet,
-		uri,
-		uhttp.WithAcceptJSONHeader(),
-		uhttp.WithHeader("Accept", "application/xml"),
-		WithAuthorization(d.getUser(), d.getPWD(), d.getToken()),
-	)
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allJobs)
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&jobData))
 	if err != nil {
-		return nil, &JenkinsError{
-			ErrorMessage:     err.Error(),
-			ErrorDescription: err.Error(),
-			ErrorCode:        resp.StatusCode,
-			ErrorSummary:     fmt.Sprint(resp.Body),
-			ErrorLink:        endpointUrl,
-		}
+		return nil, getCustomError(err, resp, endpointUrl)
 	}
 
 	defer resp.Body.Close()
@@ -247,32 +242,14 @@ func (d *JenkinsClient) GetJobs(ctx context.Context) ([]Job, error) {
 // Get all views. Only authenticated users may call this resource.
 func (d *JenkinsClient) GetViews(ctx context.Context) ([]View, error) {
 	var viewData ViewsAPIData
-	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allViews)
-	uri, err := url.Parse(endpointUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := d.httpClient.NewRequest(ctx,
-		http.MethodGet,
-		uri,
-		uhttp.WithAcceptJSONHeader(),
-		uhttp.WithHeader("Accept", "application/xml"),
-		WithAuthorization(d.getUser(), d.getPWD(), d.getToken()),
-	)
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allViews)
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&viewData))
 	if err != nil {
-		return nil, &JenkinsError{
-			ErrorMessage:     err.Error(),
-			ErrorDescription: err.Error(),
-			ErrorCode:        resp.StatusCode,
-			ErrorSummary:     fmt.Sprint(resp.Body),
-			ErrorLink:        endpointUrl,
-		}
+		return nil, getCustomError(err, resp, endpointUrl)
 	}
 
 	defer resp.Body.Close()
@@ -284,32 +261,14 @@ func (d *JenkinsClient) GetViews(ctx context.Context) ([]View, error) {
 // Get all users. Only authenticated users may call this resource.
 func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 	var userData UsersAPIData
-	endpointUrl := fmt.Sprintf("%s/%s", d.baseUrl, allUsers)
-	uri, err := url.Parse(endpointUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := d.httpClient.NewRequest(ctx,
-		http.MethodGet,
-		uri,
-		uhttp.WithAcceptJSONHeader(),
-		uhttp.WithHeader("Accept", "application/xml"),
-		WithAuthorization(d.getUser(), d.getPWD(), d.getToken()),
-	)
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allUsers)
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&userData))
 	if err != nil {
-		return nil, &JenkinsError{
-			ErrorMessage:     err.Error(),
-			ErrorDescription: err.Error(),
-			ErrorCode:        resp.StatusCode,
-			ErrorSummary:     fmt.Sprint(resp.Body),
-			ErrorLink:        endpointUrl,
-		}
+		return nil, getCustomError(err, resp, endpointUrl)
 	}
 
 	defer resp.Body.Close()
