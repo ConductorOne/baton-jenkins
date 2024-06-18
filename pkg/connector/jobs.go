@@ -3,15 +3,19 @@ package connector
 import (
 	"context"
 
+	"github.com/conductorone/baton-jenkins/pkg/client"
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
 	"github.com/conductorone/baton-sdk/pkg/annotations"
 	"github.com/conductorone/baton-sdk/pkg/pagination"
 )
 
-type jobBuilder struct{}
+type jobBuilder struct {
+	resourceType *v2.ResourceType
+	client       *client.JenkinsClient
+}
 
-func (o *jobBuilder) ResourceType(ctx context.Context) *v2.ResourceType {
-	return userResourceType
+func (j *jobBuilder) ResourceType(ctx context.Context) *v2.ResourceType {
+	return j.resourceType
 }
 
 // List returns all the users from the database as resource objects.
@@ -30,6 +34,9 @@ func (o *jobBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken *
 	return nil, "", nil, nil
 }
 
-func newJobBuilder() *jobBuilder {
-	return &jobBuilder{}
+func newJobBuilder(client *client.JenkinsClient) *jobBuilder {
+	return &jobBuilder{
+		resourceType: resourceTypeJob,
+		client:       client,
+	}
 }

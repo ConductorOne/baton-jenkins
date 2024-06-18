@@ -34,7 +34,7 @@ func (b *JenkinsError) Error() string {
 
 // GET - http://{baseurl}/computer/api/json
 const (
-	allNodes = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed]"
+	allNodes = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
 )
 
 type auth struct {
@@ -149,7 +149,7 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 	}
 
 	// basic authentication or token
-	dc := JenkinsClient{
+	jc := JenkinsClient{
 		httpClient: cli,
 		baseUrl:    baseUrl,
 		auth: &auth{
@@ -160,7 +160,7 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 		jenkinsCache: NewGoCache(10, 10),
 	}
 
-	return &dc, nil
+	return &jc, nil
 }
 
 // GetNodes
