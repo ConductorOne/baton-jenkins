@@ -15,13 +15,20 @@ var (
 	resourceTypeNode = &v2.ResourceType{
 		Id:          "node",
 		DisplayName: "Node",
-		// Traits: []v2.ResourceType_Trait{
-		// 	v2.ResourceType_TRAIT_GROUP,
-		// },
+		Traits: []v2.ResourceType_Trait{
+			v2.ResourceType_TRAIT_GROUP,
+		},
 	}
 	resourceTypeJob = &v2.ResourceType{
 		Id:          "job",
 		DisplayName: "Job",
+		Traits: []v2.ResourceType_Trait{
+			v2.ResourceType_TRAIT_GROUP,
+		},
+	}
+	resourceTypeView = &v2.ResourceType{
+		Id:          "view",
+		DisplayName: "View",
 		Traits: []v2.ResourceType_Trait{
 			v2.ResourceType_TRAIT_GROUP,
 		},

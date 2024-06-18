@@ -30,3 +30,14 @@ type Job struct {
 	Buildable bool   `json:"buildable"`
 	Color     string `json:"color"`
 }
+
+type ViewsAPIData struct {
+	Class string `json:"_class"`
+	Views []View `json:"views"`
+}
+
+type View struct {
+	Class string `json:"_class"`
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+}

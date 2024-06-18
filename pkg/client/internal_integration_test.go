@@ -56,3 +56,14 @@ func getJenkinsClientForTesting() *JenkinsClient {
 		jenkinsCache: GoCache{},
 	}
 }
+
+func TestJenkinsClient_GetViews(t *testing.T) {
+	if userName == "" && password == "" {
+		t.Skip()
+	}
+
+	cli := getJenkinsClientForTesting()
+	nodes, err := cli.GetViews(ctx)
+	assert.Nil(t, err)
+	assert.NotNil(t, nodes)
+}
