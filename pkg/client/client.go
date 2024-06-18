@@ -32,7 +32,10 @@ func (b *JenkinsError) Error() string {
 	return b.ErrorMessage
 }
 
-// GET - http://{baseurl}/computer/api/json
+// GET - http://{baseurl}/computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]
+// GET - http://{baseurl}/api/json?pretty&tree=jobs[name,url,color,buildable]
+// GET - http://{baseurl}/api/json?pretty&tree=views[name,url]
+// GET - http://{baseurl}/asynchPeople/api/json?pretty&depth=3
 const (
 	allNodes = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
 	allJobs  = "api/json?pretty&tree=jobs[name,url,color,buildable]"
