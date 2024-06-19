@@ -3,6 +3,7 @@ package connector
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/conductorone/baton-jenkins/pkg/client"
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
@@ -17,6 +18,8 @@ type roleBuilder struct {
 	resourceType *v2.ResourceType
 	client       *client.JenkinsClient
 }
+
+const NF = -1
 
 // Create a new connector resource for a jenkins role.
 func roleResource(ctx context.Context, role string, parentResourceID *v2.ResourceId) (*v2.Resource, error) {
@@ -103,24 +106,25 @@ func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken 
 			continue
 		}
 
-		for _, item := range role.RoleDetail {
-			if item.Type != "USER" {
-				continue
-			}
-
-			user := client.Users{
-				User: client.User{
-					ID: item.Sid,
-				},
-			}
-			ur, err := userResource(ctx, user, resource.Id)
-			if err != nil {
-				return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
-			}
-
-			tr := gr.NewGrant(resource, role.RoleName, ur.Id)
-			rv = append(rv, tr)
+		index := slices.IndexFunc(role.RoleDetail, func(c client.Role) bool {
+			return c.Type == "USER"
+		})
+		if index == NF {
+			continue
 		}
+
+		user := client.Users{
+			User: client.User{
+				ID: role.RoleDetail[index].Sid,
+			},
+		}
+		ur, err := userResource(ctx, user, resource.Id)
+		if err != nil {
+			return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
+		}
+
+		tr := gr.NewGrant(resource, role.RoleName, ur.Id)
+		rv = append(rv, tr)
 	}
 
 	return rv, "", nil, nil
