@@ -36,3 +36,30 @@ jobs:
         uses: guyarb/golang-test-annotations@v0.5.1
         with:
           test-results: test.json
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BATON_JENKINS_USERNAME: ${{ secrets.BATON_JENKINS_USERNAME }}
+      BATON_JENKINS_PASSWORD: ${{ secrets.BATON_JENKINS_PASSWORD }}
+      BATON_JENKINS_TOKEN: ${{ secrets.BATON_JENKINS_TOKEN }}
+      BATON_JENKINS_BASEURL: ${{ secrets.BATON_JENKINS_BASEURL }}
+      BATON_LOG_LEVEL: debug
+      CONNECTOR_GRANT: 'grant:entitlement:group:1234:member:user:9876'
+      CONNECTOR_ENTITLEMENT: 'entitlement:group:1234:member'
+      CONNECTOR_PRINCIPAL: 'user:9876'
+      CONNECTOR_PRINCIPAL_TYPE: 'user'
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.x
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build baton-jenkins
+        run: go build ./cmd/baton-jenkins
+      - name: Run baton-jenkins
+        run: ./baton-jenkins
+      - name: Install baton
+        run: ./scripts/get-baton.sh && mv baton /usr/local/bin
+      
