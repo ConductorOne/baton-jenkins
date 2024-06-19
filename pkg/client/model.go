@@ -60,7 +60,12 @@ type User struct {
 	ID          string      `json:"id"`
 }
 
+type RolesAPIData struct {
+	RoleName   string `json:"RoleName"`
+	RoleDetail []Role `json:"roles"`
+}
+
 type Role struct {
-	Type string `json:"type"`
 	Sid  string `json:"sid"`
+	Type string `json:"type"`
 }

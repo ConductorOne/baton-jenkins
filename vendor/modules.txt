@@ -140,9 +140,6 @@ github.com/aws/smithy-go/waiter
 # github.com/benbjohnson/clock v1.3.5
 ## explicit; go 1.15
 github.com/benbjohnson/clock
-# github.com/conductorone/baton-bitbucket-datacenter v0.0.3
-## explicit; go 1.22.2
-github.com/conductorone/baton-bitbucket-datacenter/pkg/client
 # github.com/conductorone/baton-sdk v0.1.45
 ## explicit; go 1.21
 github.com/conductorone/baton-sdk/internal/connector
@@ -178,6 +175,7 @@ github.com/conductorone/baton-sdk/pkg/tasks/c1api
 github.com/conductorone/baton-sdk/pkg/tasks/local
 github.com/conductorone/baton-sdk/pkg/types
 github.com/conductorone/baton-sdk/pkg/types/entitlement
+github.com/conductorone/baton-sdk/pkg/types/grant
 github.com/conductorone/baton-sdk/pkg/types/resource
 github.com/conductorone/baton-sdk/pkg/types/tasks
 github.com/conductorone/baton-sdk/pkg/types/ticket

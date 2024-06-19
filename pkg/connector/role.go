@@ -9,6 +9,7 @@ import (
 	"github.com/conductorone/baton-sdk/pkg/annotations"
 	"github.com/conductorone/baton-sdk/pkg/pagination"
 	ent "github.com/conductorone/baton-sdk/pkg/types/entitlement"
+	gr "github.com/conductorone/baton-sdk/pkg/types/grant"
 	rs "github.com/conductorone/baton-sdk/pkg/types/resource"
 )
 
@@ -55,8 +56,8 @@ func (r *roleBuilder) List(ctx context.Context, parentResourceID *v2.ResourceId,
 		return nil, "", nil, err
 	}
 
-	for role := range roles {
-		nr, err := roleResource(ctx, role, parentResourceID)
+	for _, role := range roles {
+		nr, err := roleResource(ctx, role.RoleName, parentResourceID)
 		if err != nil {
 			return nil, "", nil, err
 		}
@@ -88,7 +89,41 @@ func (r *roleBuilder) Entitlements(ctx context.Context, resource *v2.Resource, _
 
 // Grants always returns an empty slice for users since they don't have any entitlements.
 func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken *pagination.Token) ([]*v2.Grant, string, annotations.Annotations, error) {
-	return nil, "", nil, nil
+	var (
+		err error
+		rv  []*v2.Grant
+	)
+	roles, err := r.client.GetRoles(ctx)
+	if err != nil {
+		return nil, "", nil, err
+	}
+
+	for _, role := range roles {
+		if role.RoleName != resource.Id.Resource {
+			continue
+		}
+
+		for _, item := range role.RoleDetail {
+			if item.Type != "USER" {
+				continue
+			}
+
+			user := client.Users{
+				User: client.User{
+					ID: item.Sid,
+				},
+			}
+			ur, err := userResource(ctx, user, resource.Id)
+			if err != nil {
+				return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
+			}
+
+			tr := gr.NewGrant(resource, role.RoleName, ur.Id)
+			rv = append(rv, tr)
+		}
+	}
+
+	return rv, "", nil, nil
 }
 
 func newRoleBuilder(client *client.JenkinsClient) *roleBuilder {
