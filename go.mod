@@ -3,6 +3,7 @@ module github.com/conductorone/baton-jenkins
 go 1.22.4
 
 require (
+	github.com/conductorone/baton-bitbucket-datacenter v0.0.3
 	github.com/conductorone/baton-sdk v0.1.45
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/stretchr/testify v1.9.0
@@ -85,7 +86,7 @@ require (
 	golang.org/x/oauth2 v0.20.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/text v0.15.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240506185236-b8a5c65736ae // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
