@@ -12,10 +12,9 @@ import (
 )
 
 type JenkinsClient struct {
-	auth         *auth
-	httpClient   *uhttp.BaseHttpClient
-	baseUrl      string
-	jenkinsCache GoCache
+	auth       *auth
+	httpClient *uhttp.BaseHttpClient
+	baseUrl    string
 }
 
 type JenkinsError struct {
@@ -59,7 +58,6 @@ func NewClient() *JenkinsClient {
 			password:    "",
 			bearerToken: "",
 		},
-		jenkinsCache: NewGoCache(10, 10),
 	}
 }
 
@@ -165,7 +163,6 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 			password:    clientSecret,
 			bearerToken: clientToken,
 		},
-		jenkinsCache: NewGoCache(10, 10),
 	}
 
 	return &jc, nil

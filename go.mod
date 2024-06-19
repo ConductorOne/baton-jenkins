@@ -5,7 +5,6 @@ go 1.22.4
 require (
 	github.com/conductorone/baton-sdk v0.1.45
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0

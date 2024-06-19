@@ -51,9 +51,8 @@ func getJenkinsClientForTesting() *JenkinsClient {
 			password:    password,
 			bearerToken: "",
 		},
-		httpClient:   getClientForTesting(ctx),
-		baseUrl:      baseUrl,
-		jenkinsCache: GoCache{},
+		httpClient: getClientForTesting(ctx),
+		baseUrl:    baseUrl,
 	}
 }
 
