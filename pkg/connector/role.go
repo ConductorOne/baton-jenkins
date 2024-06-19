@@ -69,24 +69,19 @@ func (r *roleBuilder) List(ctx context.Context, parentResourceID *v2.ResourceId,
 // Entitlements always returns an empty slice for users.
 func (r *roleBuilder) Entitlements(ctx context.Context, resource *v2.Resource, _ *pagination.Token) ([]*v2.Entitlement, string, annotations.Annotations, error) {
 	var rv []*v2.Entitlement
-	roles, err := r.client.GetRoles(ctx)
-	if err != nil {
-		return nil, "", nil, err
-	}
-
+	// role does not have an id
+	permission := resource.DisplayName
 	// create entitlement for each role
-	for permission := range roles {
-		permissionOptions := []ent.EntitlementOption{
-			ent.WithGrantableTo(resourceTypeUser, resourceTypeGroup),
-			ent.WithDisplayName(fmt.Sprintf("%s Role %s", resource.DisplayName, permission)),
-			ent.WithDescription(fmt.Sprintf("%s access to %s - %s role in Jenkins", titleCase(permission), resource.Id.Resource, resource.DisplayName)),
-		}
-		rv = append(rv, ent.NewPermissionEntitlement(
-			resource,
-			permission,
-			permissionOptions...,
-		))
+	permissionOptions := []ent.EntitlementOption{
+		ent.WithGrantableTo(resourceTypeUser, resourceTypeGroup),
+		ent.WithDisplayName(fmt.Sprintf("%s Role %s", resource.DisplayName, permission)),
+		ent.WithDescription(fmt.Sprintf("%s access to %s - %s role in Jenkins", titleCase(permission), resource.Id.Resource, resource.DisplayName)),
 	}
+	rv = append(rv, ent.NewPermissionEntitlement(
+		resource,
+		permission,
+		permissionOptions...,
+	))
 
 	return rv, "", nil, nil
 }
