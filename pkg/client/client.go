@@ -41,6 +41,7 @@ const (
 	allJobs  = "api/json?pretty&tree=jobs[name,url,color,buildable]"
 	allViews = "api/json?pretty&tree=views[name,url]"
 	allUsers = "asynchPeople/api/json?pretty&depth=3"
+	allRoles = "role-strategy/strategy/getAllRoles?type=globalRoles"
 )
 
 type auth struct {
@@ -274,4 +275,23 @@ func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 	defer resp.Body.Close()
 
 	return userData.Users, nil
+}
+
+// GetRoles
+// Get all roles. Only authenticated users may call this resource.
+func (d *JenkinsClient) GetRoles(ctx context.Context) (map[string]any, error) {
+	var roleData map[string]any
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allRoles)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&roleData))
+	if err != nil {
+		return nil, getCustomError(err, resp, endpointUrl)
+	}
+
+	defer resp.Body.Close()
+
+	return roleData, nil
 }

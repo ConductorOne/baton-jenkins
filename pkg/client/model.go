@@ -59,3 +59,8 @@ type User struct {
 	FullName    string      `json:"fullName"`
 	ID          string      `json:"id"`
 }
+
+type Role struct {
+	Type string `json:"type"`
+	Sid  string `json:"sid"`
+}
