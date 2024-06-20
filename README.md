@@ -76,9 +76,7 @@ services:
       - /usr/local/bin/docker:/usr/local/bin/docker
 ```
 
-Run `docker-compose up -d` to launch the containers. You can then access the Jenkins admin server at [http://localhost:8080](http://localhost:8080) and login with the admin credentials you provided in the docker-compose file.
-
-You will also need Jenkins’s initial admin password to perform the Jenkins web-based installation. You can get the Jenkins admin password with the following command.
+Run `docker-compose up -d` to launch the container. You will also need Jenkins’s initial admin password to perform the Jenkins web-based installation. You can get the Jenkins admin password with the following command.
 ```
 docker exec jenkins-lts cat /var/jenkins_home/secrets/initialAdminPassword
 ```
@@ -87,30 +85,13 @@ You should see the password in the following output.
 99b844a4ad13404796e1ab8bcf05edd1
 ```
 
-You can also check the Jenkins logs to get the password.
-```
-docker logs jenkins-lts | less
-```
-You should see the following output.
-```
-Jenkins initial setup is required. An admin user has been created and a password generated.
-Please use the following password to proceed to installation:
+`Access Jenkins Web UI`. At this point, Jenkins is installed and listens on port 8080. You can now access it using the URL [http://localhost:8080](http://localhost:8080). You should see the Jenkins initial setup password screen. 
+- Provide your password and click on the Continue button. You should see the customized Jenkins screen. 
+- Click on Install suggested plugins. You should see the Getting Started screen. 
+- Create your new admin user and click on the Save and Continue buttons. You should see the instance configuration screen. 
+- Click on the Save and Finish button
 
-99b844a4ad13404796e1ab8bcf05edd1
-
-Running from: /usr/share/jenkins/jenkins.war
-webroot: /var/jenkins_home/war
-This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
-
-*************************************************************
-*************************************************************
-*************************************************************
-
-2023-03-26 05:25:19.934+0000 [id=28]    INFO    jenkins.InitReactorRunner$1#onAttained: Completed initialization
-2023-03-26 05:25:19.956+0000 [id=22]    INFO    hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
-2023-03-26 05:25:20.151+0000 [id=44]    INFO    h.m.DownloadService$Downloadable#load: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller
-2023-03-26 05:25:20.153+0000 [id=44]    INFO    hudson.util.Retrier#start: Performed the action check updates server successfully at the attempt #1
-```
+You can then access the Jenkins admin server at [http://localhost:8080](http://localhost:8080) and login with the admin credentials you provided in the previous step.
 
 After you login you can create new resources to be synced by baton.
 
