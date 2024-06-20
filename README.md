@@ -56,7 +56,7 @@ BATON_JENKINS_USERNAME=userID BATON_JENKINS_TOKEN=apiKey BATON_JENKINS_BASEURL=b
 baton resources
 ```
 
-# How to test
+## How to test
 You can use this docker-compose.yaml to launch an instance server to interact with Jenkins.
 
 ```
