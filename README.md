@@ -8,28 +8,6 @@ Check out [Baton](https://github.com/conductorone/baton) to learn more the proje
 
 # Getting Started
 
-## Plugins
-
-[People View Plugin](https://plugins.jenkins.io/people-view/)
-Provides the "People" view and API that were part of Jenkins up to version 2.451.
-
-`Installation options`
-```
-1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
-Locate this plugin by searching for people-view.
-2) Using the CLI tool: jenkins-plugin-cli --plugins people-view:1.2
-```
-
-[Role-based Authorization Strategy](https://plugins.jenkins.io/role-strategy/)
-Enables user authorization using a Role-Based strategy. Roles can be defined globally or for particular jobs or nodes selected by regular expressions.
-
-`Installation options`
-```
-1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
-Locate this plugin by searching for role-strategy.
-2) Using the CLI tool: jenkins-plugin-cli --plugins role-strategy:727.vd344b_eec783d
-```
-
 ## brew
 
 ```
@@ -98,6 +76,28 @@ After you login you can create new resources to be synced by baton.
 After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below. baton-jenkins --jenkins-username adminuser --jenkins-password jenkins_password
 
 After successfully syncing data, use the baton CLI to list the resources and see the synced data. baton resources baton stats
+
+## Plugins
+
+[People View Plugin](https://plugins.jenkins.io/people-view/)
+Provides the "People" view and API that were part of Jenkins up to version 2.451.
+
+`Installation options`
+```
+1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
+Locate this plugin by searching for people-view.
+2) Using the CLI tool: jenkins-plugin-cli --plugins people-view:1.2
+```
+
+[Role-based Authorization Strategy](https://plugins.jenkins.io/role-strategy/)
+Enables user authorization using a Role-Based strategy. Roles can be defined globally or for particular jobs or nodes selected by regular expressions.
+
+`Installation options`
+```
+1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
+Locate this plugin by searching for role-strategy.
+2) Using the CLI tool: jenkins-plugin-cli --plugins role-strategy:727.vd344b_eec783d
+```
 
 # Data Model
 
