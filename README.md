@@ -17,8 +17,7 @@ Provides the "People" view and API that were part of Jenkins up to version 2.451
 ```
 1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
 Locate this plugin by searching for people-view.
-2) Using the CLI tool:
-jenkins-plugin-cli --plugins people-view:1.2
+2) Using the CLI tool: jenkins-plugin-cli --plugins people-view:1.2
 ```
 
 [Role-based Authorization Strategy](https://plugins.jenkins.io/role-strategy/)
@@ -26,9 +25,9 @@ Enables user authorization using a Role-Based strategy. Roles can be defined glo
 
 `Installation options`
 ```
-1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. Locate this plugin by searching for role-strategy.
-2) Using the CLI tool:
-jenkins-plugin-cli --plugins role-strategy:727.vd344b_eec783d
+1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
+Locate this plugin by searching for role-strategy.
+2) Using the CLI tool: jenkins-plugin-cli --plugins role-strategy:727.vd344b_eec783d
 ```
 
 ## brew
