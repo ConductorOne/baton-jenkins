@@ -202,7 +202,7 @@ func getCustomError(err error, resp *http.Response, endpointUrl string) *Jenkins
 }
 
 // GetNodes
-// Get all nodes. Only authenticated users may call this resource.
+// Get all nodes.
 func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 	var nodeData NodesAPIData
 	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allNodes)
@@ -221,7 +221,7 @@ func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 }
 
 // GetJobs
-// Get all jobs. Only authenticated users may call this resource.
+// Get all jobs.
 func (d *JenkinsClient) GetJobs(ctx context.Context) ([]Job, error) {
 	var jobData JobsAPIData
 	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allJobs)
@@ -240,7 +240,7 @@ func (d *JenkinsClient) GetJobs(ctx context.Context) ([]Job, error) {
 }
 
 // GetViews
-// Get all views. Only authenticated users may call this resource.
+// Get all views.
 func (d *JenkinsClient) GetViews(ctx context.Context) ([]View, error) {
 	var viewData ViewsAPIData
 	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allViews)
@@ -259,7 +259,7 @@ func (d *JenkinsClient) GetViews(ctx context.Context) ([]View, error) {
 }
 
 // GetUsers
-// Get all users. Only authenticated users may call this resource.
+// Get all users.
 func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 	var userData UsersAPIData
 	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allUsers)
@@ -278,7 +278,7 @@ func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 }
 
 // GetRoles
-// Get all global roles. Only authenticated users may call this resource.
+// Get all roles.
 func (d *JenkinsClient) GetRoles(ctx context.Context, apiUrl string) ([]RolesAPIData, error) {
 	var (
 		rolesAPIData []RolesAPIData
@@ -320,7 +320,7 @@ func (d *JenkinsClient) GetRoles(ctx context.Context, apiUrl string) ([]RolesAPI
 }
 
 // GetAllRoles
-// Get all roles. Only authenticated users may call this resource.
+// Get all roles.
 func (d *JenkinsClient) GetAllRoles(ctx context.Context) ([]RolesAPIData, error) {
 	var allRoles []RolesAPIData
 	roles, err := d.GetRoles(ctx, allGlobalRoles)
