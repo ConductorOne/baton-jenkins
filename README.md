@@ -85,7 +85,7 @@ You should see the password in the following output.
 99b844a4ad13404796e1ab8bcf05edd1
 ```
 
-## Access Jenkins Web UI. 
+## Access Jenkins Web UI 
 At this point, Jenkins is installed and listens on port 8080. You can now access it using the URL [http://localhost:8080](http://localhost:8080). You should see the Jenkins initial setup password screen. 
 - Provide your password and click on the Continue button. You should see the customized Jenkins screen. 
 - Click on Install suggested plugins. You should see the Getting Started screen. 
