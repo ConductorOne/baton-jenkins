@@ -78,6 +78,7 @@ After creating new resources on the Jenkins server, use the baton-jenkins cli to
 After successfully syncing data, use the baton CLI to list the resources and see the synced data. baton resources baton stats
 
 ## Plugins
+In order to manage users and roles within jenkins we need to install the followings plugins.
 
 [People View Plugin](https://plugins.jenkins.io/people-view/)
 Provides the "People" view and API that were part of Jenkins up to version 2.451.
