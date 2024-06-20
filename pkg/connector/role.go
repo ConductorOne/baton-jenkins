@@ -3,7 +3,6 @@ package connector
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	"github.com/conductorone/baton-jenkins/pkg/client"
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
@@ -95,8 +94,10 @@ func (r *roleBuilder) Entitlements(ctx context.Context, resource *v2.Resource, _
 // Grants always returns an empty slice for users since they don't have any entitlements.
 func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken *pagination.Token) ([]*v2.Grant, string, annotations.Annotations, error) {
 	var (
-		err error
-		rv  []*v2.Grant
+		err       error
+		rv        []*v2.Grant
+		userType  = "USER"
+		groupType = "GROUP"
 	)
 	roles, err := r.client.GetAllRoles(ctx)
 	if err != nil {
@@ -108,25 +109,34 @@ func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken 
 			continue
 		}
 
-		index := slices.IndexFunc(role.RoleDetail, func(c client.Role) bool {
-			return c.Type == "USER"
-		})
-		if index == NF {
-			continue
-		}
+		for _, rd := range role.RoleDetail {
+			switch rd.Type {
+			case userType:
+				user := client.Users{
+					User: client.User{
+						ID: rd.Sid,
+					},
+				}
+				ur, err := userResource(ctx, user, resource.Id)
+				if err != nil {
+					return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
+				}
 
-		user := client.Users{
-			User: client.User{
-				ID: role.RoleDetail[index].Sid,
-			},
-		}
-		ur, err := userResource(ctx, user, resource.Id)
-		if err != nil {
-			return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
-		}
+				tr := gr.NewGrant(resource, role.RoleName, ur.Id)
+				rv = append(rv, tr)
+			case groupType:
+				group := client.Group{
+					ID: rd.Sid,
+				}
+				ur, err := groupResource(ctx, group, resource.Id)
+				if err != nil {
+					return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
+				}
 
-		tr := gr.NewGrant(resource, role.RoleName, ur.Id)
-		rv = append(rv, tr)
+				tr := gr.NewGrant(resource, role.RoleName, ur.Id)
+				rv = append(rv, tr)
+			}
+		}
 	}
 
 	return rv, "", nil, nil

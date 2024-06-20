@@ -63,11 +63,19 @@ func (u *userBuilder) ResourceType(ctx context.Context) *v2.ResourceType {
 // Users include a UserTrait because they are the 'shape' of a standard user.
 func (u *userBuilder) List(ctx context.Context, parentResourceID *v2.ResourceId, pToken *pagination.Token) ([]*v2.Resource, string, annotations.Annotations, error) {
 	var rv []*v2.Resource
+	defaultUser := client.Users{
+		User: client.User{
+			Description: "Default user",
+			FullName:    "Anonymous",
+			ID:          "anonymous",
+		},
+	}
 	users, err := u.client.GetUsers(ctx)
 	if err != nil {
 		return nil, "", nil, err
 	}
 
+	users = append(users, defaultUser)
 	for _, user := range users {
 		nr, err := userResource(ctx, user, parentResourceID)
 		if err != nil {

@@ -45,7 +45,7 @@ var (
 		Id:          "group",
 		DisplayName: "Group",
 		Traits: []v2.ResourceType_Trait{
-			v2.ResourceType_TRAIT_USER,
+			v2.ResourceType_TRAIT_GROUP,
 		},
 	}
 )

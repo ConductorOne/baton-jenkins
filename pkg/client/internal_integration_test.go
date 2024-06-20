@@ -88,3 +88,25 @@ func TestJenkinsClient_GetRoles(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, nodes)
 }
+
+func TestJenkinsClient_GetGroups(t *testing.T) {
+	if userName == "" && password == "" {
+		t.Skip()
+	}
+
+	cli := getJenkinsClientForTesting()
+	nodes, err := cli.GetGroups(ctx)
+	assert.Nil(t, err)
+	assert.NotNil(t, nodes)
+}
+
+func TestJenkinsClient_GetAllRoles(t *testing.T) {
+	if userName == "" && password == "" {
+		t.Skip()
+	}
+
+	cli := getJenkinsClientForTesting()
+	nodes, err := cli.GetAllRoles(ctx)
+	assert.Nil(t, err)
+	assert.NotNil(t, nodes)
+}

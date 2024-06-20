@@ -343,3 +343,48 @@ func (d *JenkinsClient) GetAllRoles(ctx context.Context) ([]RolesAPIData, error)
 	allRoles = append(allRoles, roles...)
 	return allRoles, nil
 }
+
+// GetGroups
+// Get all groups.
+func (d *JenkinsClient) GetGroups(ctx context.Context) ([]Group, error) {
+	var (
+		groupData GroupsAPIData
+		arrIDs    []string
+	)
+	groups, err := d.GetAllRoles(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, group := range groups {
+		for _, item := range group.RoleDetail {
+			if item.Type != "GROUP" {
+				continue
+			}
+			arrIDs = append(arrIDs, item.Sid)
+		}
+	}
+
+	groupIDs := removeDuplicates(arrIDs)
+	groupData = GroupsAPIData{
+		Groups: groupIDs,
+	}
+
+	return groupData.Groups, nil
+}
+
+func removeDuplicates(groupIDs []string) []Group {
+	var groups []Group
+	keys := make(map[string]bool)
+	// If the key(value of the slice) is not equal we append it. else we jump on another element.
+	for _, id := range groupIDs {
+		if _, value := keys[id]; !value {
+			keys[id] = true
+			groups = append(groups, Group{
+				ID: id,
+			})
+		}
+	}
+
+	return groups
+}

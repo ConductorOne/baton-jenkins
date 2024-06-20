@@ -69,3 +69,15 @@ type Role struct {
 	Sid  string `json:"sid"`
 	Type string `json:"type"`
 }
+
+type Group struct {
+	AbsoluteURL string      `json:"absoluteUrl"`
+	Description interface{} `json:"description"`
+	FullName    string      `json:"fullName"`
+	ID          string      `json:"id"`
+}
+
+type GroupsAPIData struct {
+	Class  string  `json:"_class"`
+	Groups []Group `json:"groups"`
+}
