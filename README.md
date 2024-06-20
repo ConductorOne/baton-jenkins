@@ -78,6 +78,40 @@ services:
 
 Run `docker-compose up -d` to launch the containers. You can then access the Jenkins admin server at [http://localhost:8080](http://localhost:8080) and login with the admin credentials you provided in the docker-compose file.
 
+You will also need Jenkins’s initial admin password to perform the Jenkins web-based installation. You can get the Jenkins admin password with the following command.
+```
+docker exec jenkins-lts cat /var/jenkins_home/secrets/initialAdminPassword
+```
+You should see the password in the following output.
+```
+99b844a4ad13404796e1ab8bcf05edd1
+```
+
+You can also check the Jenkins logs to get the password.
+```
+docker logs jenkins-lts | less
+```
+You should see the following output.
+```
+Jenkins initial setup is required. An admin user has been created and a password generated.
+Please use the following password to proceed to installation:
+
+99b844a4ad13404796e1ab8bcf05edd1
+
+Running from: /usr/share/jenkins/jenkins.war
+webroot: /var/jenkins_home/war
+This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
+
+*************************************************************
+*************************************************************
+*************************************************************
+
+2023-03-26 05:25:19.934+0000 [id=28]    INFO    jenkins.InitReactorRunner$1#onAttained: Completed initialization
+2023-03-26 05:25:19.956+0000 [id=22]    INFO    hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
+2023-03-26 05:25:20.151+0000 [id=44]    INFO    h.m.DownloadService$Downloadable#load: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller
+2023-03-26 05:25:20.153+0000 [id=44]    INFO    hudson.util.Retrier#start: Performed the action check updates server successfully at the attempt #1
+```
+
 After you login you can create new resources to be synced by baton.
 
 After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below. baton-jenkins --jenkins-username adminuser --jenkins-password jenkins_password
