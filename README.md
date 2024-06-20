@@ -14,7 +14,7 @@ Check out [Baton](https://github.com/conductorone/baton) to learn more the proje
 Provides the "People" view and API that were part of Jenkins up to version 2.451.
 
 ```
-### Installation options
+Installation options
 - Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
 Locate this plugin by searching for people-view.
 - Using the CLI tool:
@@ -25,7 +25,7 @@ jenkins-plugin-cli --plugins people-view:1.2
 Enables user authorization using a Role-Based strategy. Roles can be defined globally or for particular jobs or 
 nodes selected by regular expressions.
 ```
-### Installation options
+Installation options
 - Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. Locate this plugin by searching for role-strategy.
 - Using the CLI tool:
 jenkins-plugin-cli --plugins role-strategy:727.vd344b_eec783d
