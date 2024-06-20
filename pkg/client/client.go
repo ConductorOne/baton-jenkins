@@ -365,9 +365,8 @@ func (d *JenkinsClient) GetGroups(ctx context.Context) ([]Group, error) {
 		}
 	}
 
-	groupIDs := removeDuplicates(arrIDs)
 	groupData = GroupsAPIData{
-		Groups: groupIDs,
+		Groups: removeDuplicates(arrIDs),
 	}
 
 	return groupData.Groups, nil
