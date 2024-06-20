@@ -56,6 +56,34 @@ BATON_JENKINS_USERNAME=userID BATON_JENKINS_TOKEN=apiKey BATON_JENKINS_BASEURL=b
 baton resources
 ```
 
+# How to test
+You can use this docker-compose.yaml to launch an instance server to interact with Jenkins.
+
+```
+version: '3.7'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 50000:50000
+    container_name: jenkins-lts
+    volumes:
+      - ~/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+```
+
+Run `docker-compose up -d` to launch the containers. You can then access the Jenkins admin server at [http://localhost:8080](http://localhost:8080) and login with the admin credentials you provided in the docker-compose file.
+
+After you login you can create new resources to be synced by baton.
+
+After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below. baton-jenkins --jenkins-username adminuser --jenkins-password jenkins_password
+
+After successfully syncing data, use the baton CLI to list the resources and see the synced data. baton resources baton stats
+
 # Data Model
 
 `baton-jenkins` will pull down information about the following jenkins resources:
