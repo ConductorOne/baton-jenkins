@@ -37,11 +37,13 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/asynchPeople/api/json?pretty&depth=3
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=globalRoles
 const (
-	allNodes = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
-	allJobs  = "api/json?pretty&tree=jobs[name,url,color,buildable]"
-	allViews = "api/json?pretty&tree=views[name,url]"
-	allUsers = "asynchPeople/api/json?pretty&depth=3"
-	allRoles = "role-strategy/strategy/getAllRoles?type=globalRoles"
+	allNodes        = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
+	allJobs         = "api/json?pretty&tree=jobs[name,url,color,buildable]"
+	allViews        = "api/json?pretty&tree=views[name,url]"
+	allUsers        = "asynchPeople/api/json?pretty&depth=3"
+	allGlobalRoles  = "role-strategy/strategy/getAllRoles?type=globalRoles"
+	allProjectRoles = "role-strategy/strategy/getAllRoles?type=projectRoles"
+	allSlaveRoles   = "role-strategy/strategy/getAllRoles?type=slaveRoles"
 )
 
 type auth struct {
@@ -276,15 +278,15 @@ func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 }
 
 // GetRoles
-// Get all roles. Only authenticated users may call this resource.
-func (d *JenkinsClient) GetRoles(ctx context.Context) ([]RolesAPIData, error) {
+// Get all global roles. Only authenticated users may call this resource.
+func (d *JenkinsClient) GetRoles(ctx context.Context, queryString string) ([]RolesAPIData, error) {
 	var (
 		rolesAPIData []RolesAPIData
 		roleData     map[string]any
 		roleDetail   []any
 		ok           bool
 	)
-	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allRoles)
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -300,6 +302,7 @@ func (d *JenkinsClient) GetRoles(ctx context.Context) ([]RolesAPIData, error) {
 		if roleDetail, ok = roleDetails.([]any); !ok {
 			return nil, err
 		}
+
 		for _, itemDetails := range roleDetail {
 			item := itemDetails.(map[string]any)
 			roles = append(roles, Role{
@@ -314,4 +317,29 @@ func (d *JenkinsClient) GetRoles(ctx context.Context) ([]RolesAPIData, error) {
 	}
 
 	return rolesAPIData, nil
+}
+
+// GetAllRoles
+// Get all roles. Only authenticated users may call this resource.
+func (d *JenkinsClient) GetAllRoles(ctx context.Context) ([]RolesAPIData, error) {
+	var allRoles []RolesAPIData
+	roles, err := d.GetRoles(ctx, allGlobalRoles)
+	if err != nil {
+		return nil, err
+	}
+
+	allRoles = append(allRoles, roles...)
+	roles, err = d.GetRoles(ctx, allProjectRoles)
+	if err != nil {
+		return nil, err
+	}
+
+	allRoles = append(allRoles, roles...)
+	roles, err = d.GetRoles(ctx, allSlaveRoles)
+	if err != nil {
+		return nil, err
+	}
+
+	allRoles = append(allRoles, roles...)
+	return allRoles, nil
 }

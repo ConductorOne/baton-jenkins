@@ -84,7 +84,7 @@ func TestJenkinsClient_GetRoles(t *testing.T) {
 	}
 
 	cli := getJenkinsClientForTesting()
-	nodes, err := cli.GetRoles(ctx)
+	nodes, err := cli.GetAllRoles(ctx)
 	assert.Nil(t, err)
 	assert.NotNil(t, nodes)
 }
