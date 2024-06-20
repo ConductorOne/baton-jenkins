@@ -73,7 +73,14 @@ You can then access the Jenkins admin server at [http://localhost:8080](http://l
 
 After you login you can create new resources to be synced by baton.
 
-After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below. baton-jenkins --jenkins-username adminuser --jenkins-password jenkins_password
+After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below. 
+```
+baton-jenkins --jenkins-username <user> --jenkins-password <password> --jenkins-baseurl <baseurl>
+```
+You can also use a token instead of user/password
+```
+baton-jenkins --jenkins-token <token> --jenkins-baseurl <baseurl>
+```
 
 After successfully syncing data, use the baton CLI to list the resources and see the synced data. baton resources baton stats
 
