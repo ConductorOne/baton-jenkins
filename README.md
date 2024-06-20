@@ -60,7 +60,6 @@ baton resources
 
 `baton-jenkins` will pull down information about the following jenkins resources:
 - Users
-  - roles
 - Roles
 - Nodes
 - Jobs 
