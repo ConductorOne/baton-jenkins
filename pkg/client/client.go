@@ -36,6 +36,8 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/api/json?pretty&tree=views[name,url]
 // GET - http://{baseurl}/asynchPeople/api/json?pretty&depth=3
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=globalRoles
+// GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=projectRoles
+// GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=slaveRoles
 const (
 	allNodes        = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
 	allJobs         = "api/json?pretty&tree=jobs[name,url,color,buildable]"
