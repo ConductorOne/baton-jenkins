@@ -279,14 +279,14 @@ func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 
 // GetRoles
 // Get all global roles. Only authenticated users may call this resource.
-func (d *JenkinsClient) GetRoles(ctx context.Context, queryString string) ([]RolesAPIData, error) {
+func (d *JenkinsClient) GetRoles(ctx context.Context, apiUrl string) ([]RolesAPIData, error) {
 	var (
 		rolesAPIData []RolesAPIData
 		roleData     map[string]any
 		roleDetail   []any
 		ok           bool
 	)
-	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, queryString)
+	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, apiUrl)
 	if err != nil {
 		return nil, err
 	}
