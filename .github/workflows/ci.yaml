@@ -39,19 +39,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    services:
-      jenkins:
-        image: jenkins/jenkins:lts
-        ports:
-          - 8080:8080
-          - 50000:50000
-        # needed because the postgres container does not provide a healthcheck
-        options: >-
-          --health-cmd 
-          --health-interval 10s 
-          --health-timeout 5s 
-          --health-retries 3
-          --health-start-period 90s
     env:
       BATON_JENKINS_USERNAME: ${{ secrets.BATON_JENKINS_USERNAME }}
       BATON_JENKINS_PASSWORD: ${{ secrets.BATON_JENKINS_PASSWORD }}
