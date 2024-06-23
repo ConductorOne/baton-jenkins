@@ -49,7 +49,8 @@ const (
 	allGlobalRoles  = "role-strategy/strategy/getAllRoles?type=globalRoles"
 	allProjectRoles = "role-strategy/strategy/getAllRoles?type=projectRoles"
 	allSlaveRoles   = "role-strategy/strategy/getAllRoles?type=slaveRoles"
-	allRoles        = "role-strategy/strategy/assignUserRole"
+	assignUserRole  = "role-strategy/strategy/assignUserRole"
+	assignGroupRole = "role-strategy/strategy/assignGroupRole"
 )
 
 type auth struct {
@@ -448,11 +449,29 @@ func removeDuplicates(groupIDs []string) []Group {
 	return groups
 }
 
-// SetRoles
-// Set all roles.
-func (d *JenkinsClient) SetRoles(ctx context.Context, roleName, userName string) (int, error) {
+// SetUserRole
+// Set user roles.
+func (d *JenkinsClient) SetUserRole(ctx context.Context, roleName, userName string) (int, error) {
 	var body = fmt.Sprintf("type=globalRoles&roleName=%s&user=%s", roleName, userName)
-	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, allRoles, body)
+	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, assignUserRole, body)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	resp, err := d.httpClient.Do(req)
+	if err != nil && resp.StatusCode != http.StatusOK {
+		return http.StatusBadRequest, getCustomError(err, resp, endpointUrl)
+	}
+
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
+}
+
+// SetGroupRole
+// Set group roles.
+func (d *JenkinsClient) SetGroupRole(ctx context.Context, roleName, groupName string) (int, error) {
+	var body = fmt.Sprintf("type=globalRoles&roleName=%s&group=%s", roleName, groupName)
+	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, assignGroupRole, body)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}

@@ -134,7 +134,7 @@ func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken 
 				}
 				ur, err := groupResource(ctx, group, resource.Id)
 				if err != nil {
-					return nil, "", nil, fmt.Errorf("error creating user resource for role %s: %w", resource.Id.Resource, err)
+					return nil, "", nil, fmt.Errorf("error creating group resource for role %s: %w", resource.Id.Resource, err)
 				}
 
 				tr := gr.NewGrant(resource, role.RoleName, ur.Id)
@@ -146,24 +146,10 @@ func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken 
 	return rv, "", nil, nil
 }
 
-func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitlement *v2.Entitlement) (annotations.Annotations, error) {
-	var (
-		userId = principal.Id.Resource
-		roleId = entitlement.Resource.Id.Resource
-	)
-	l := ctxzap.Extract(ctx)
-	if principal.Id.ResourceType != resourceTypeUser.Id && principal.Id.ResourceType != resourceTypeGroup.Id {
-		l.Warn(
-			"jenkins-connector: only users or groups can be granted repo membership",
-			zap.String("principal_type", principal.Id.ResourceType),
-			zap.String("principal_id", principal.Id.Resource),
-		)
-		return nil, fmt.Errorf("jenkins-connector: only users or groups can be granted repo membership")
-	}
-
+func validateRole(ctx context.Context, r *roleBuilder, roleId, sId string) (int, error) {
 	roles, err := r.client.GetAllRoles(ctx)
 	if err != nil {
-		return nil, err
+		return NF, err
 	}
 
 	for _, role := range roles {
@@ -172,8 +158,35 @@ func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitle
 		}
 
 		rolePos := slices.IndexFunc(role.RoleDetail, func(c client.Role) bool {
-			return c.Sid == userId
+			return c.Sid == sId
 		})
+
+		return rolePos, nil
+	}
+
+	return NF, nil
+}
+
+func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitlement *v2.Entitlement) (annotations.Annotations, error) {
+	var roleId = entitlement.Resource.Id.Resource
+	l := ctxzap.Extract(ctx)
+	if principal.Id.ResourceType != resourceTypeUser.Id && principal.Id.ResourceType != resourceTypeGroup.Id {
+		l.Warn(
+			"jenkins-connector: only users or groups can be granted role memberships",
+			zap.String("principal_type", principal.Id.ResourceType),
+			zap.String("principal_id", principal.Id.Resource),
+		)
+		return nil, fmt.Errorf("jenkins-connector: only users or groups can be granted role memberships")
+	}
+
+	switch principal.Id.ResourceType {
+	case resourceTypeUser.Id:
+		userId := principal.Id.Resource
+		rolePos, err := validateRole(ctx, r, roleId, userId)
+		if err != nil {
+			return nil, err
+		}
+
 		if rolePos != NF {
 			l.Warn(
 				"jenkins-connector: user already has this role permission",
@@ -182,18 +195,47 @@ func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitle
 			)
 			return nil, fmt.Errorf("jenkins-connector: user %s already has this role permission", userId)
 		}
-	}
 
-	statusCode, err := r.client.SetRoles(ctx, roleId, userId)
-	if err != nil {
-		return nil, err
-	}
+		statusCode, err := r.client.SetUserRole(ctx, roleId, userId)
+		if err != nil {
+			return nil, err
+		}
 
-	if statusCode == http.StatusOK {
-		l.Warn("Role has been created.",
-			zap.String("userId", userId),
-			zap.String("roleId", roleId),
-		)
+		if statusCode == http.StatusOK {
+			l.Warn("Role has been created.",
+				zap.String("userId", userId),
+				zap.String("roleId", roleId),
+			)
+		}
+	case resourceTypeGroup.Id:
+		groupId := principal.Id.Resource
+		rolePos, err := validateRole(ctx, r, roleId, groupId)
+		if err != nil {
+			return nil, err
+		}
+
+		if rolePos != NF {
+			l.Warn(
+				"jenkins-connector: group already has this role permission",
+				zap.String("principal_id", principal.Id.String()),
+				zap.String("principal_type", principal.Id.ResourceType),
+			)
+			return nil, fmt.Errorf("jenkins-connector: group %s already has this role permission", groupId)
+		}
+
+		statusCode, err := r.client.SetGroupRole(ctx, roleId, groupId)
+		if err != nil {
+			return nil, err
+		}
+
+		if statusCode == http.StatusOK {
+			l.Warn("Role has been created.",
+				zap.String("groupId", groupId),
+				zap.String("roleId", roleId),
+			)
+		}
+	default:
+		return nil, fmt.Errorf("jenkins-connector: invalid grant resource type: %s", principal.Id.ResourceType)
 	}
 
 	return nil, nil
