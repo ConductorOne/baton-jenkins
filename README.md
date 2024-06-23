@@ -79,7 +79,7 @@ baton-jenkins --jenkins-username <user> --jenkins-password <password> --jenkins-
 ```
 You can also use a token instead of user/password
 ```
-baton-jenkins --jenkins-token <token> --jenkins-baseurl <baseurl>
+baton-jenkins --jenkins-username <user> --jenkins-token <token> --jenkins-baseurl <baseurl>
 ```
 
 After successfully syncing data, use the baton CLI to list the resources and see the synced data. baton resources baton stats
