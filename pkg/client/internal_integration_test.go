@@ -120,7 +120,7 @@ func TestJenkinsClient_SetRoles(t *testing.T) {
 	roleName := "reviewer"
 	userName := "localuser"
 	cli := getJenkinsClientForTesting()
-	roles, err := cli.SetUserRole(ctx, roleName, userName)
+	roles, err := cli.AssignUserRole(ctx, roleName, userName)
 	assert.Nil(t, err)
 	assert.NotNil(t, roles)
 }

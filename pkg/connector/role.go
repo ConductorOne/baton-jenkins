@@ -196,7 +196,7 @@ func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitle
 			return nil, fmt.Errorf("jenkins-connector: user %s already has this role permission", userId)
 		}
 
-		statusCode, err := r.client.SetUserRole(ctx, roleId, userId)
+		statusCode, err := r.client.AssignUserRole(ctx, roleId, userId)
 		if err != nil {
 			return nil, err
 		}
@@ -223,7 +223,7 @@ func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitle
 			return nil, fmt.Errorf("jenkins-connector: group %s already has this role permission", groupId)
 		}
 
-		statusCode, err := r.client.SetGroupRole(ctx, roleId, groupId)
+		statusCode, err := r.client.AssignGroupRole(ctx, roleId, groupId)
 		if err != nil {
 			return nil, err
 		}

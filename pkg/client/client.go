@@ -42,15 +42,17 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=slaveRoles
 // POST - http://{baseurl}/role-strategy/strategy/assignUserRole
 const (
-	allNodes        = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
-	allJobs         = "api/json?pretty&tree=jobs[name,url,color,buildable]"
-	allViews        = "api/json?pretty&tree=views[name,url]"
-	allUsers        = "asynchPeople/api/json?pretty&depth=3"
-	allGlobalRoles  = "role-strategy/strategy/getAllRoles?type=globalRoles"
-	allProjectRoles = "role-strategy/strategy/getAllRoles?type=projectRoles"
-	allSlaveRoles   = "role-strategy/strategy/getAllRoles?type=slaveRoles"
-	assignUserRole  = "role-strategy/strategy/assignUserRole"
-	assignGroupRole = "role-strategy/strategy/assignGroupRole"
+	allNodes          = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
+	allJobs           = "api/json?pretty&tree=jobs[name,url,color,buildable]"
+	allViews          = "api/json?pretty&tree=views[name,url]"
+	allUsers          = "asynchPeople/api/json?pretty&depth=3"
+	allGlobalRoles    = "role-strategy/strategy/getAllRoles?type=globalRoles"
+	allProjectRoles   = "role-strategy/strategy/getAllRoles?type=projectRoles"
+	allSlaveRoles     = "role-strategy/strategy/getAllRoles?type=slaveRoles"
+	assignUserRole    = "role-strategy/strategy/assignUserRole"
+	assignGroupRole   = "role-strategy/strategy/assignGroupRole"
+	unassignUserRole  = "role-strategy/strategy/unassignUserRole"
+	unassignGroupRole = "role-strategy/strategy/unassignGroupRole"
 )
 
 type auth struct {
@@ -449,9 +451,9 @@ func removeDuplicates(groupIDs []string) []Group {
 	return groups
 }
 
-// SetUserRole
-// Set user roles.
-func (d *JenkinsClient) SetUserRole(ctx context.Context, roleName, userName string) (int, error) {
+// AssignUserRole
+// Assign User Role.
+func (d *JenkinsClient) AssignUserRole(ctx context.Context, roleName, userName string) (int, error) {
 	var body = fmt.Sprintf("type=globalRoles&roleName=%s&user=%s", roleName, userName)
 	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, assignUserRole, body)
 	if err != nil {
@@ -467,11 +469,53 @@ func (d *JenkinsClient) SetUserRole(ctx context.Context, roleName, userName stri
 	return resp.StatusCode, nil
 }
 
-// SetGroupRole
-// Set group roles.
-func (d *JenkinsClient) SetGroupRole(ctx context.Context, roleName, groupName string) (int, error) {
+// AssignGroupRole
+// Assign Group Role.
+func (d *JenkinsClient) AssignGroupRole(ctx context.Context, roleName, groupName string) (int, error) {
 	var body = fmt.Sprintf("type=globalRoles&roleName=%s&group=%s", roleName, groupName)
 	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, assignGroupRole, body)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	resp, err := d.httpClient.Do(req)
+	if err != nil && resp.StatusCode != http.StatusOK {
+		return http.StatusBadRequest, getCustomError(err, resp, endpointUrl)
+	}
+
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
+}
+
+// UnassignUserRole
+//
+//	Unassign User roles.
+//
+// https://javadoc.jenkins.io/plugin/role-strategy/com/michelin/cio/hudson/plugins/rolestrategy/RoleBasedAuthorizationStrategy.html#doGetRole(java.lang.String,java.lang.String)
+func (d *JenkinsClient) UnassignUserRole(ctx context.Context, roleName, userName string) (int, error) {
+	var body = fmt.Sprintf("type=globalRoles&roleName=%s&user=%s", roleName, userName)
+	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, unassignUserRole, body)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	resp, err := d.httpClient.Do(req)
+	if err != nil && resp.StatusCode != http.StatusOK {
+		return http.StatusBadRequest, getCustomError(err, resp, endpointUrl)
+	}
+
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
+}
+
+// UnassignGroupRole
+//
+//	Unassign Group roles.
+//
+// https://javadoc.jenkins.io/plugin/role-strategy/com/michelin/cio/hudson/plugins/rolestrategy/RoleBasedAuthorizationStrategy.html#doGetRole(java.lang.String,java.lang.String)
+func (d *JenkinsClient) UnassignGroupRole(ctx context.Context, roleName, groupName string) (int, error) {
+	var body = fmt.Sprintf("type=globalRoles&roleName=%s&group=%s", roleName, groupName)
+	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, unassignGroupRole, body)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
