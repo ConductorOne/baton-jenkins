@@ -93,13 +93,13 @@ func WithSetBasicAuthHeader(username, password string) uhttp.RequestOption {
 	return uhttp.WithHeader("Authorization", "Basic "+basicAuth(username, password))
 }
 
-func WithSetBearerAuthHeader(token string) uhttp.RequestOption {
-	return uhttp.WithHeader("Authorization", "Bearer "+token)
+func WithSetTokenAuthHeader(username, token string) uhttp.RequestOption {
+	return uhttp.WithHeader("Authorization", "Basic "+basicAuth(username, token))
 }
 
 func WithAuthorization(username, password, token string) uhttp.RequestOption {
 	if token != "" {
-		return WithSetBearerAuthHeader(token)
+		return WithSetTokenAuthHeader(username, token)
 	}
 
 	return WithSetBasicAuthHeader(username, password)

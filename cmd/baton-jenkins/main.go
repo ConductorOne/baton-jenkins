@@ -40,7 +40,7 @@ func getConnector(ctx context.Context, cfg *config) (types.ConnectorServer, erro
 	l := ctxzap.Extract(ctx)
 	jenkinsClient := client.NewClient()
 	if cfg.JenkinsToken != "" {
-		jenkinsClient.WithBearerToken(cfg.JenkinsToken)
+		jenkinsClient.WithUser(cfg.JenkinsUsername).WithBearerToken(cfg.JenkinsToken)
 	}
 
 	if cfg.JenkinsUsername != "" && cfg.JenkinsPassword != "" {

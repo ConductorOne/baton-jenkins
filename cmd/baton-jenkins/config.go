@@ -22,6 +22,10 @@ func validateConfig(ctx context.Context, cfg *config) error {
 		return fmt.Errorf("jenkins-baseurl must be provided")
 	}
 
+	if cfg.JenkinsUsername == "" {
+		return fmt.Errorf("jenkins-username must be provided")
+	}
+
 	if cfg.JenkinsToken == "" {
 		if cfg.JenkinsUsername == "" || cfg.JenkinsPassword == "" {
 			return fmt.Errorf("either bitbucketdc-token or (bitbucketdc-username/bitbucketdc-password) must be provided")

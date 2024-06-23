@@ -14,11 +14,12 @@ var (
 	ctx         = context.Background()
 	userName, _ = os.LookupEnv("BATON_JENKINS_USERNAME")
 	password, _ = os.LookupEnv("BATON_JENKINS_PASSWORD")
+	token, _    = os.LookupEnv("BATON_JENKINS_TOKEN")
 	baseUrl     = "http://localhost:8080"
 )
 
 func TestJenkinsClient_GetNodes(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && password == "" && token == "" {
 		t.Skip()
 	}
 
@@ -29,7 +30,7 @@ func TestJenkinsClient_GetNodes(t *testing.T) {
 }
 
 func TestJenkinsClient_GetJobs(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && password == "" && token == "" {
 		t.Skip()
 	}
 
@@ -49,7 +50,7 @@ func getJenkinsClientForTesting() *JenkinsClient {
 		auth: &auth{
 			user:        userName,
 			password:    password,
-			bearerToken: "",
+			bearerToken: token,
 		},
 		httpClient: getClientForTesting(ctx),
 		baseUrl:    baseUrl,
@@ -57,7 +58,7 @@ func getJenkinsClientForTesting() *JenkinsClient {
 }
 
 func TestJenkinsClient_GetViews(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && password == "" && token == "" {
 		t.Skip()
 	}
 
@@ -68,7 +69,7 @@ func TestJenkinsClient_GetViews(t *testing.T) {
 }
 
 func TestJenkinsClient_GetUsers(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && password == "" && token == "" {
 		t.Skip()
 	}
 
@@ -79,7 +80,7 @@ func TestJenkinsClient_GetUsers(t *testing.T) {
 }
 
 func TestJenkinsClient_GetRoles(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && password == "" && token == "" {
 		t.Skip()
 	}
 
@@ -101,7 +102,7 @@ func TestJenkinsClient_GetGroups(t *testing.T) {
 }
 
 func TestJenkinsClient_GetAllRoles(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && password == "" && token == "" {
 		t.Skip()
 	}
 
