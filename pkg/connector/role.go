@@ -3,6 +3,8 @@ package connector
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"slices"
 
 	"github.com/conductorone/baton-jenkins/pkg/client"
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
@@ -145,6 +147,10 @@ func (r *roleBuilder) Grants(ctx context.Context, resource *v2.Resource, pToken 
 }
 
 func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitlement *v2.Entitlement) (annotations.Annotations, error) {
+	var (
+		userId = principal.Id.Resource
+		roleId = entitlement.Resource.Id.Resource
+	)
 	l := ctxzap.Extract(ctx)
 	if principal.Id.ResourceType != resourceTypeUser.Id && principal.Id.ResourceType != resourceTypeGroup.Id {
 		l.Warn(
@@ -153,6 +159,41 @@ func (r *roleBuilder) Grant(ctx context.Context, principal *v2.Resource, entitle
 			zap.String("principal_id", principal.Id.Resource),
 		)
 		return nil, fmt.Errorf("jenkins-connector: only users or groups can be granted repo membership")
+	}
+
+	roles, err := r.client.GetAllRoles(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, role := range roles {
+		if role.RoleName != roleId {
+			continue
+		}
+
+		rolePos := slices.IndexFunc(role.RoleDetail, func(c client.Role) bool {
+			return c.Sid == userId
+		})
+		if rolePos != NF {
+			l.Warn(
+				"jenkins-connector: user already has this role permission",
+				zap.String("principal_id", principal.Id.String()),
+				zap.String("principal_type", principal.Id.ResourceType),
+			)
+			return nil, fmt.Errorf("jenkins-connector: user %s already has this role permission", userId)
+		}
+	}
+
+	statusCode, err := r.client.SetRoles(ctx, roleId, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	if statusCode == http.StatusOK {
+		l.Warn("Role has been created.",
+			zap.String("userId", userId),
+			zap.String("roleId", roleId),
+		)
 	}
 
 	return nil, nil

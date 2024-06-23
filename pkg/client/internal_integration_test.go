@@ -111,3 +111,16 @@ func TestJenkinsClient_GetAllRoles(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, nodes)
 }
+
+func TestJenkinsClient_SetRoles(t *testing.T) {
+	if userName == "" && password == "" && token == "" {
+		t.Skip()
+	}
+
+	roleName := "reviewer"
+	userName := "localuser"
+	cli := getJenkinsClientForTesting()
+	roles, err := cli.SetRoles(ctx, roleName, userName)
+	assert.Nil(t, err)
+	assert.NotNil(t, roles)
+}

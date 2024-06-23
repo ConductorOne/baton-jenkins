@@ -1,9 +1,11 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -38,6 +40,7 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=globalRoles
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=projectRoles
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=slaveRoles
+// POST - http://{baseurl}/role-strategy/strategy/assignUserRole
 const (
 	allNodes        = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
 	allJobs         = "api/json?pretty&tree=jobs[name,url,color,buildable]"
@@ -46,6 +49,7 @@ const (
 	allGlobalRoles  = "role-strategy/strategy/getAllRoles?type=globalRoles"
 	allProjectRoles = "role-strategy/strategy/getAllRoles?type=projectRoles"
 	allSlaveRoles   = "role-strategy/strategy/getAllRoles?type=slaveRoles"
+	allRoles        = "role-strategy/strategy/assignUserRole"
 )
 
 type auth struct {
@@ -185,6 +189,60 @@ func getRequest(ctx context.Context, cli *JenkinsClient, baseUrl, apiUrl string)
 		uhttp.WithAcceptJSONHeader(),
 		uhttp.WithHeader("Accept", "application/xml"),
 		WithAuthorization(cli.getUser(), cli.getPWD(), cli.getToken()),
+	)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return req, endpointUrl, nil
+}
+
+func WithContentTypeFormHeader() uhttp.RequestOption {
+	return func() (io.ReadWriter, map[string]string, error) {
+		return nil, map[string]string{
+			"Content-Type": "application/x-www-form-urlencoded",
+		}, nil
+	}
+}
+
+func WithContentTypeTextHeader() uhttp.RequestOption {
+	return func() (io.ReadWriter, map[string]string, error) {
+		return nil, map[string]string{
+			"Content-Type": "text/html; charset=utf-8",
+		}, nil
+	}
+}
+
+func WithBody(body string) uhttp.RequestOption {
+	return func() (io.ReadWriter, map[string]string, error) {
+		var buffer bytes.Buffer
+		_, err := buffer.WriteString(body)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		_, headers, err := WithContentTypeFormHeader()()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		return &buffer, headers, nil
+	}
+}
+
+func getPostRequest(ctx context.Context, cli *JenkinsClient, baseUrl, apiUrl, body string) (*http.Request, string, error) {
+	endpointUrl := fmt.Sprintf("%s/%s", baseUrl, apiUrl)
+	uri, err := url.Parse(endpointUrl)
+	if err != nil {
+		return nil, "", err
+	}
+
+	req, err := cli.httpClient.NewRequest(ctx,
+		http.MethodPost,
+		uri,
+		uhttp.WithAcceptXMLHeader(),
+		WithAuthorization(cli.getUser(), cli.getPWD(), cli.getToken()),
+		WithBody(body),
 	)
 	if err != nil {
 		return nil, "", err
@@ -388,4 +446,22 @@ func removeDuplicates(groupIDs []string) []Group {
 	}
 
 	return groups
+}
+
+// SetRoles
+// Set all roles.
+func (d *JenkinsClient) SetRoles(ctx context.Context, roleName, userName string) (int, error) {
+	var body = fmt.Sprintf("type=globalRoles&roleName=%s&user=%s", roleName, userName)
+	req, endpointUrl, err := getPostRequest(ctx, d, d.baseUrl, allRoles, body)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	resp, err := d.httpClient.Do(req)
+	if err != nil && resp.StatusCode != http.StatusOK {
+		return http.StatusBadRequest, getCustomError(err, resp, endpointUrl)
+	}
+
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
 }
