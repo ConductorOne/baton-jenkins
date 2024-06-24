@@ -11,6 +11,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"go.uber.org/zap"
 
+	"github.com/conductorone/baton-jenkins/pkg/client"
 	"github.com/conductorone/baton-jenkins/pkg/connector"
 )
 
@@ -37,8 +38,16 @@ func main() {
 
 func getConnector(ctx context.Context, cfg *config) (types.ConnectorServer, error) {
 	l := ctxzap.Extract(ctx)
+	jenkinsClient := client.NewClient()
+	if cfg.JenkinsToken != "" {
+		jenkinsClient.WithUser(cfg.JenkinsUsername).WithBearerToken(cfg.JenkinsToken)
+	}
 
-	cb, err := connector.New(ctx)
+	if cfg.JenkinsUsername != "" && cfg.JenkinsPassword != "" {
+		jenkinsClient.WithUser(cfg.JenkinsUsername).WithPassword(cfg.JenkinsPassword)
+	}
+
+	cb, err := connector.New(ctx, cfg.JenkinstBaseUrl, jenkinsClient)
 	if err != nil {
 		l.Error("error creating connector", zap.Error(err))
 		return nil, err
