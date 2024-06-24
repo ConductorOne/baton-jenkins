@@ -11,6 +11,11 @@ import (
 	"golang.org/x/text/language"
 )
 
+const (
+	MembershipEntitlementIDTemplate = "membership:%s"
+	V1GrantIDTemplate               = "grant:%s:%s"
+)
+
 func annotationsForUserResourceType() annotations.Annotations {
 	annos := annotations.Annotations{}
 	annos.Update(&v2.SkipEntitlementsAndGrants{})
@@ -46,4 +51,27 @@ func ParseEntitlementID(id string) (*v2.ResourceId, []string, error) {
 	}
 
 	return resourceId, parts, nil
+}
+
+func ParseGrantID(id string) (*v2.ResourceId, []string, error) {
+	parts := strings.Split(id, ":")
+	// Need to be at least 5 parts type:grant_id:slug:resource_id:resource_type
+	if len(parts) < 5 || len(parts) > 5 {
+		return nil, nil, fmt.Errorf("jenkins-connector: invalid resource id")
+	}
+
+	resourceId := &v2.ResourceId{
+		ResourceType: parts[0],
+		Resource:     strings.Join(parts[1:len(parts)-1], ":"),
+	}
+
+	return resourceId, parts, nil
+}
+
+func V1MembershipEntitlementID(resourceID string) string {
+	return fmt.Sprintf(MembershipEntitlementIDTemplate, resourceID)
+}
+
+func V1GrantID(entitlementID string, userID string) string {
+	return fmt.Sprintf(V1GrantIDTemplate, entitlementID, userID)
 }

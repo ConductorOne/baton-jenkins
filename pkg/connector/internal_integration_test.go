@@ -8,7 +8,9 @@ import (
 
 	"github.com/conductorone/baton-jenkins/pkg/client"
 	v2 "github.com/conductorone/baton-sdk/pb/c1/connector/v2"
+	"github.com/conductorone/baton-sdk/pkg/annotations"
 	ent "github.com/conductorone/baton-sdk/pkg/types/entitlement"
+	"github.com/conductorone/baton-sdk/pkg/types/grant"
 	"github.com/conductorone/baton-sdk/pkg/uhttp"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/stretchr/testify/assert"
@@ -24,6 +26,10 @@ var (
 
 func TestResourceTypeGrantFails(t *testing.T) {
 	var roleEntitlement, roleId, userId string
+	if userName == "" && (password == "" || token == "") {
+		t.Skip()
+	}
+
 	grantEntitlement := "role:reviewer:reviewer"
 	grantPrincipal := "localuser"
 	grantPrincipalType := "user"
@@ -33,10 +39,6 @@ func TestResourceTypeGrantFails(t *testing.T) {
 	roleId = data[1]
 	roleEntitlement = data[2]
 	userId = grantPrincipal
-	if userName == "" && (password == "" || token == "") {
-		t.Skip()
-	}
-
 	users := getUserForTesting(userId, userId)
 	principal, err := userResource(ctx, *users, nil)
 	assert.Nil(t, err)
@@ -53,6 +55,10 @@ func TestResourceTypeGrantFails(t *testing.T) {
 
 func TestResourceTypeGrant(t *testing.T) {
 	var roleEntitlement, roleId, userId string
+	if userName == "" && (password == "" || token == "") {
+		t.Skip()
+	}
+
 	grantEntitlement := "role:reviewer:reviewer"
 	grantPrincipal := "localuser"
 	grantPrincipalType := "user"
@@ -62,10 +68,6 @@ func TestResourceTypeGrant(t *testing.T) {
 	roleId = data[1]
 	roleEntitlement = data[2]
 	userId = grantPrincipal
-	if userName == "" && (password == "" || token == "") {
-		t.Skip()
-	}
-
 	users := getUserForTesting(userId, userId)
 	principal, err := userResource(ctx, *users, nil)
 	assert.Nil(t, err)
@@ -75,7 +77,81 @@ func TestResourceTypeGrant(t *testing.T) {
 	cli := getJenkinsClientForTesting()
 	roleBuilder := getRoleBuilderForTesting(cli)
 	_, err = roleBuilder.Grant(ctx, principal, entitlement)
+	assert.Nil(t, err)
+}
+
+func TestResourceTypeRevokeFails(t *testing.T) {
+	// --revoke-grant "role:reviewer:reviewer:user:localuser"
+	var roleId, userId string
+	if userName == "" && (password == "" || token == "") {
+		t.Skip()
+	}
+
+	revokeGrant := "role:reviewer:reviewer:user:localuser"
+	_, roleData, err := ParseGrantID(revokeGrant)
+	assert.Nil(t, err)
+	assert.NotNil(t, roleData)
+	grantEntitlement := fmt.Sprintf("%s:%s:%s", roleData[0], roleData[1], roleData[2])
+	grantPrincipal := roleData[4]
+	_, data, err := ParseEntitlementID(grantEntitlement)
+	assert.Nil(t, err)
+	assert.NotNil(t, data)
+	roleId = data[1]
+	userId = grantPrincipal
+	users := getUserForTesting(userId, userId)
+	principal, err := userResource(ctx, *users, nil)
+	assert.Nil(t, err)
+	resource, err := roleResource(ctx, roleId, nil)
+	assert.Nil(t, err)
+	cli := getJenkinsClientForTesting()
+	roleBuilder := getRoleBuilderForTesting(cli)
+	gr := grant.NewGrant(resource, roleId, principal.Id)
+	annos := annotations.Annotations(gr.Annotations)
+	v1Identifier := &v2.V1Identifier{
+		Id: V1GrantID(V1MembershipEntitlementID(roleId), userId),
+	}
+	annos.Update(v1Identifier)
+	gr.Annotations = annos
+	_, err = roleBuilder.Revoke(ctx, gr)
 	assert.NotNil(t, err)
+	errMsg := fmt.Sprintf("jenkins-connector: user %s does not have this role", userId)
+	assert.Equal(t, err.Error(), errMsg, errMsg)
+}
+
+func TestResourceTypeRevoke(t *testing.T) {
+	// --revoke-grant "role:reviewer:reviewer:user:localuser"
+	var roleId, userId string
+	if userName == "" && (password == "" || token == "") {
+		t.Skip()
+	}
+
+	revokeGrant := "role:reviewer:reviewer:user:localuser"
+	_, roleData, err := ParseGrantID(revokeGrant)
+	assert.Nil(t, err)
+	assert.NotNil(t, roleData)
+	grantEntitlement := fmt.Sprintf("%s:%s:%s", roleData[0], roleData[1], roleData[2])
+	grantPrincipal := roleData[4]
+	_, data, err := ParseEntitlementID(grantEntitlement)
+	assert.Nil(t, err)
+	assert.NotNil(t, data)
+	roleId = data[1]
+	userId = grantPrincipal
+	users := getUserForTesting(userId, userId)
+	principal, err := userResource(ctx, *users, nil)
+	assert.Nil(t, err)
+	resource, err := roleResource(ctx, roleId, nil)
+	assert.Nil(t, err)
+	cli := getJenkinsClientForTesting()
+	roleBuilder := getRoleBuilderForTesting(cli)
+	gr := grant.NewGrant(resource, roleId, principal.Id)
+	annos := annotations.Annotations(gr.Annotations)
+	v1Identifier := &v2.V1Identifier{
+		Id: V1GrantID(V1MembershipEntitlementID(roleId), userId),
+	}
+	annos.Update(v1Identifier)
+	gr.Annotations = annos
+	_, err = roleBuilder.Revoke(ctx, gr)
+	assert.Nil(t, err)
 }
 
 func getRoleBuilderForTesting(client *client.JenkinsClient) *roleBuilder {
