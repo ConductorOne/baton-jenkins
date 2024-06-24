@@ -43,9 +43,9 @@ jobs:
       jenkins:
         # https://hub.docker.com/r/jenkins/jenkins
         image: jenkins/jenkins:latest
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        # credentials:
+        #   username: ${{ secrets.DOCKERHUB_USERNAME }}
+        #   password: ${{ secrets.DOCKERHUB_TOKEN }}
         env:
           # disable setup wizard + JCasC path
           JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Dcasc.jenkins.config=/casc_configs
