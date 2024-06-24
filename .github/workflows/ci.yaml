@@ -39,15 +39,31 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    services:
+      jenkins:
+        # https://hub.docker.com/r/jenkins/jenkins
+        image: jenkins/jenkins:latest
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        env:
+          # disable setup wizard + JCasC path
+          JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Dcasc.jenkins.config=/casc_configs
+        ports:
+          - 8080:8080
+          - 50000:50000
+      agent1:
+        image: jenkins/jnlp-agent-jdk11
+
     env:
       BATON_JENKINS_USERNAME: ${{ secrets.BATON_JENKINS_USERNAME }}
       BATON_JENKINS_PASSWORD: ${{ secrets.BATON_JENKINS_PASSWORD }}
       BATON_JENKINS_TOKEN: ${{ secrets.BATON_JENKINS_TOKEN }}
       BATON_JENKINS_BASEURL: ${{ secrets.BATON_JENKINS_BASEURL }}
       BATON_LOG_LEVEL: debug
-      CONNECTOR_GRANT: 'grant:entitlement:group:1234:member:user:9876'
-      CONNECTOR_ENTITLEMENT: 'entitlement:group:1234:member'
-      CONNECTOR_PRINCIPAL: 'user:9876'
+      CONNECTOR_GRANT: 'role:reviewer:reviewer:user:localuser'
+      CONNECTOR_ENTITLEMENT: 'role:reviewer:reviewer'
+      CONNECTOR_PRINCIPAL: 'localuser'
       CONNECTOR_PRINCIPAL_TYPE: 'user'
     steps:
       - name: Install Go
