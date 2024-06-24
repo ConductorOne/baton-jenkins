@@ -3,6 +3,19 @@
   "resourceTypeCapabilities": [
     {
       "resourceType": {
+        "id": "group",
+        "displayName": "Group",
+        "traits": [
+          "TRAIT_GROUP"
+        ]
+      },
+      "capabilities": [
+        "CAPABILITY_SYNC",
+        "CAPABILITY_PROVISION"
+      ]
+    },
+    {
+      "resourceType": {
         "id": "job",
         "displayName": "Job",
         "traits": [
@@ -34,7 +47,8 @@
         ]
       },
       "capabilities": [
-        "CAPABILITY_SYNC"
+        "CAPABILITY_SYNC",
+        "CAPABILITY_PROVISION"
       ]
     },
     {
@@ -68,6 +82,7 @@
     }
   ],
   "connectorCapabilities": [
+    "CAPABILITY_PROVISION",
     "CAPABILITY_SYNC"
   ]
 }
