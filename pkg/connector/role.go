@@ -262,6 +262,66 @@ func (r *roleBuilder) Revoke(ctx context.Context, grant *v2.Grant) (annotations.
 		return nil, err
 	}
 
+	roleId := entitlement.Resource.Id.Resource
+	switch principal.Id.ResourceType {
+	case resourceTypeUser.Id:
+		userId := principal.Id.Resource
+		rolePos, err := validateRole(ctx, r, roleId, userId)
+		if err != nil {
+			return nil, err
+		}
+
+		if rolePos == NF {
+			l.Warn(
+				"jenkins-connector: user does not have this role",
+				zap.String("principal_id", principal.Id.String()),
+				zap.String("principal_type", principal.Id.ResourceType),
+			)
+			return nil, fmt.Errorf("jenkins-connector: user %s does not have this role", userId)
+		}
+
+		statusCode, err := r.client.UnassignUserRole(ctx, roleId, userId)
+		if err != nil {
+			return nil, err
+		}
+
+		if statusCode == http.StatusOK {
+			l.Warn("Role has been revoked.",
+				zap.String("userId", userId),
+				zap.String("roleId", roleId),
+			)
+		}
+	case resourceTypeGroup.Id:
+		groupId := principal.Id.Resource
+		rolePos, err := validateRole(ctx, r, roleId, groupId)
+		if err != nil {
+			return nil, err
+		}
+
+		if rolePos == NF {
+			l.Warn(
+				"jenkins-connector: group does not have this role",
+				zap.String("principal_id", principal.Id.String()),
+				zap.String("principal_type", principal.Id.ResourceType),
+			)
+			return nil, fmt.Errorf("jenkins-connector: group %s does not have this role", groupId)
+		}
+
+		statusCode, err := r.client.UnassignGroupRole(ctx, roleId, groupId)
+		if err != nil {
+			return nil, err
+		}
+
+		if statusCode == http.StatusOK {
+			l.Warn("Role has been revoked.",
+				zap.String("groupId", groupId),
+				zap.String("roleId", roleId),
+			)
+		}
+	default:
+		return nil, fmt.Errorf("jenkins-connector: invalid grant resource type: %s", principal.Id.ResourceType)
+	}
+
 	return nil, nil
 }
 

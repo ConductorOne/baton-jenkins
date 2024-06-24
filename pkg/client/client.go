@@ -41,6 +41,9 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=projectRoles
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=slaveRoles
 // POST - http://{baseurl}/role-strategy/strategy/assignUserRole
+// POST - http://{baseurl}/role-strategy/strategy/assignGroupRole
+// POST - http://{baseurl}/role-strategy/strategy/unassignUserRole
+// POST - http://{baseurl}/role-strategy/strategy/unassignGroupRole
 const (
 	allNodes          = "computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]"
 	allJobs           = "api/json?pretty&tree=jobs[name,url,color,buildable]"
@@ -84,6 +87,11 @@ func (d *JenkinsClient) WithPassword(jenkinsPassword string) *JenkinsClient {
 
 func (d *JenkinsClient) WithBearerToken(jenkinsToken string) *JenkinsClient {
 	d.auth.bearerToken = jenkinsToken
+	return d
+}
+
+func (d *JenkinsClient) WithBaseUrl(baseurl string) *JenkinsClient {
+	d.baseUrl = baseurl
 	return d
 }
 
@@ -281,6 +289,10 @@ func (d *JenkinsClient) GetNodes(ctx context.Context) ([]Computer, error) {
 	defer resp.Body.Close()
 
 	return nodeData.Computer, nil
+}
+
+func (d *JenkinsClient) SetClient(httpClient *uhttp.BaseHttpClient) {
+	d.httpClient = httpClient
 }
 
 // GetJobs

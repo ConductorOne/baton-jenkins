@@ -58,7 +58,7 @@ func getJenkinsClientForTesting() *JenkinsClient {
 }
 
 func TestJenkinsClient_GetViews(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -69,7 +69,7 @@ func TestJenkinsClient_GetViews(t *testing.T) {
 }
 
 func TestJenkinsClient_GetUsers(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -80,7 +80,7 @@ func TestJenkinsClient_GetUsers(t *testing.T) {
 }
 
 func TestJenkinsClient_GetRoles(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -91,7 +91,7 @@ func TestJenkinsClient_GetRoles(t *testing.T) {
 }
 
 func TestJenkinsClient_GetGroups(t *testing.T) {
-	if userName == "" && password == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -102,7 +102,7 @@ func TestJenkinsClient_GetGroups(t *testing.T) {
 }
 
 func TestJenkinsClient_GetAllRoles(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -112,8 +112,8 @@ func TestJenkinsClient_GetAllRoles(t *testing.T) {
 	assert.NotNil(t, nodes)
 }
 
-func TestJenkinsClient_SetRoles(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+func TestJenkinsClient_AssignUserRole(t *testing.T) {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -121,6 +121,19 @@ func TestJenkinsClient_SetRoles(t *testing.T) {
 	userName := "localuser"
 	cli := getJenkinsClientForTesting()
 	roles, err := cli.AssignUserRole(ctx, roleName, userName)
+	assert.Nil(t, err)
+	assert.NotNil(t, roles)
+}
+
+func TestJenkinsClient_AssignGroupRole(t *testing.T) {
+	if userName == "" && (password == "" || token == "") {
+		t.Skip()
+	}
+
+	roleName := "builder"
+	groupName := "authenticated"
+	cli := getJenkinsClientForTesting()
+	roles, err := cli.AssignGroupRole(ctx, roleName, groupName)
 	assert.Nil(t, err)
 	assert.NotNil(t, roles)
 }
