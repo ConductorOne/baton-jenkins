@@ -70,8 +70,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Build baton-jenkins
         run: go build ./cmd/baton-jenkins
-      - name: Run baton-jenkins
+      - name: Import jenkins backup
+        run: |
+          tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
+      # - name: Run baton-jenkins
       #   run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
-      # - name: Install baton
+      - name: Install baton
         run: ./scripts/get-baton.sh && mv baton /usr/local/bin
       
