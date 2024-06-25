@@ -73,6 +73,7 @@ jobs:
       - name: Import jenkins backup
         run: |
           tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
+          tar xvfz jenkins-credentials.tar.gz $JENKINS_HOME/secrets/
       - name: Install baton
         run: ./scripts/get-baton.sh && mv baton /usr/local/bin
       - name: Run baton-jenkins
