@@ -72,10 +72,11 @@ jobs:
         run: go build ./cmd/baton-jenkins
       - name: Import jenkins backup
         run: |
-          tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
-          tar xvfz jenkins-credentials.tar.gz /var/jenkins_home/secrets/
+          ls -la
+          # tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
+          # tar xvfz jenkins-credentials.tar.gz /var/jenkins_home/secrets/
       - name: Install baton
         run: ./scripts/get-baton.sh && mv baton /usr/local/bin
-      - name: Run baton-jenkins
-        run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
+      # - name: Run baton-jenkins
+        # run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
       
