@@ -61,7 +61,6 @@ jobs:
       CONNECTOR_ENTITLEMENT: 'role:reviewer:reviewer'
       CONNECTOR_PRINCIPAL: 'localuser'
       CONNECTOR_PRINCIPAL_TYPE: 'user'
-    container: jenkins/jenkins:latest
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
