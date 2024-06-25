@@ -61,6 +61,7 @@ jobs:
       CONNECTOR_ENTITLEMENT: 'role:reviewer:reviewer'
       CONNECTOR_PRINCIPAL: 'localuser'
       CONNECTOR_PRINCIPAL_TYPE: 'user'
+    container: jenkins/jenkins:latest
     steps:
       - name: Install Go
         uses: actions/setup-go@v5
@@ -74,7 +75,7 @@ jobs:
         run: |
           ls -la
           docker ps
-          docker exec jenkins/jenkins:latest ls -la
+          # docker exec jenkins/jenkins:latest ls -la
           # tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
           # tar xvfz jenkins-credentials.tar.gz /var/jenkins_home/secrets/
       - name: Install baton
