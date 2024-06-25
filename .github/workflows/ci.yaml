@@ -73,7 +73,8 @@ jobs:
       - name: Import jenkins backup
         run: |
           ls -la
-          docker exec jenkins-latest ls -la
+          docker ps
+          # docker exec jenkins-latest ls -la
           # tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
           # tar xvfz jenkins-credentials.tar.gz /var/jenkins_home/secrets/
       - name: Install baton
