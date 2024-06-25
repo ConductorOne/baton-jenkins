@@ -73,8 +73,8 @@ jobs:
       - name: Import jenkins backup
         run: |
           tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
-      # - name: Run baton-jenkins
-      #   run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
       - name: Install baton
         run: ./scripts/get-baton.sh && mv baton /usr/local/bin
+      - name: Run baton-jenkins
+        run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
       
