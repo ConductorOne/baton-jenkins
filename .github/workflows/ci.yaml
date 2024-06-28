@@ -39,15 +39,27 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    services:
+      jenkins:
+        # https://hub.docker.com/r/jenkins/jenkins
+        image: jenkins/jenkins:latest
+        env:
+          # disable setup wizard + JCasC path
+          JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Dcasc.jenkins.config=/casc_configs
+        ports:
+          - 8080:8080
+          - 50000:50000
+      agent1:
+        image: jenkins/jnlp-agent-jdk11
+
     env:
       BATON_JENKINS_USERNAME: ${{ secrets.BATON_JENKINS_USERNAME }}
-      BATON_JENKINS_PASSWORD: ${{ secrets.BATON_JENKINS_PASSWORD }}
       BATON_JENKINS_TOKEN: ${{ secrets.BATON_JENKINS_TOKEN }}
-      BATON_JENKINS_BASEURL: ${{ secrets.BATON_JENKINS_BASEURL }}
+      BATON_JENKINS_BASEURL: http://localhost:8080
       BATON_LOG_LEVEL: debug
-      CONNECTOR_GRANT: 'grant:entitlement:group:1234:member:user:9876'
-      CONNECTOR_ENTITLEMENT: 'entitlement:group:1234:member'
-      CONNECTOR_PRINCIPAL: 'user:9876'
+      CONNECTOR_GRANT: 'role:reviewer:reviewer:user:localuser'
+      CONNECTOR_ENTITLEMENT: 'role:reviewer:reviewer'
+      CONNECTOR_PRINCIPAL: 'localuser'
       CONNECTOR_PRINCIPAL_TYPE: 'user'
     steps:
       - name: Install Go
@@ -58,8 +70,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Build baton-jenkins
         run: go build ./cmd/baton-jenkins
-      # - name: Run baton-jenkins
-      #   run: ./baton-jenkins
+      - name: Import jenkins backup
+        run: |
+          ls -la
+          docker ps
+          # docker exec jenkins/jenkins:latest ls -la
+          # tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
+          # tar xvfz jenkins-credentials.tar.gz /var/jenkins_home/secrets/
       - name: Install baton
         run: ./scripts/get-baton.sh && mv baton /usr/local/bin
+      # - name: Run baton-jenkins
+        # run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
       

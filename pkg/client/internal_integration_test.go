@@ -19,7 +19,7 @@ var (
 )
 
 func TestJenkinsClient_GetNodes(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
@@ -30,7 +30,7 @@ func TestJenkinsClient_GetNodes(t *testing.T) {
 }
 
 func TestJenkinsClient_GetJobs(t *testing.T) {
-	if userName == "" && password == "" && token == "" {
+	if userName == "" && (password == "" || token == "") {
 		t.Skip()
 	}
 
