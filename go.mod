@@ -3,9 +3,8 @@ module github.com/conductorone/baton-jenkins
 go 1.22.4
 
 require (
-	github.com/conductorone/baton-sdk v0.1.45
+	github.com/conductorone/baton-sdk v0.1.47
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/text v0.15.0
@@ -35,6 +34,7 @@ require (
 	github.com/aws/smithy-go v1.20.2 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/deckarep/golang-set/v2 v2.6.0 // indirect
 	github.com/doug-martin/goqu/v9 v9.19.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.4 // indirect
@@ -68,6 +68,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/viper v1.18.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.8.0 // indirect
