@@ -263,13 +263,17 @@ func getPostRequest(ctx context.Context, cli *JenkinsClient, baseUrl, apiUrl, bo
 }
 
 func getCustomError(err error, resp *http.Response, endpointUrl string) *JenkinsError {
-	return &JenkinsError{
+	ce := &JenkinsError{
 		ErrorMessage:     err.Error(),
 		ErrorDescription: err.Error(),
-		ErrorCode:        resp.StatusCode,
-		ErrorSummary:     fmt.Sprint(resp.Body),
 		ErrorLink:        endpointUrl,
 	}
+	if resp != nil {
+		ce.ErrorCode = resp.StatusCode
+		ce.ErrorSummary = fmt.Sprint(resp.Body)
+	}
+
+	return ce
 }
 
 // GetNodes
