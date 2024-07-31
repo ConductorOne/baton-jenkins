@@ -269,13 +269,13 @@ func getCustomError(err error, resp *http.Response, endpointUrl string) *Jenkins
 		ErrorLink:        endpointUrl,
 	}
 	if resp != nil {
+		ce.ErrorCode = resp.StatusCode
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			ce.ErrorSummary = fmt.Sprintf("Error reading response body %s", err.Error())
 			return ce
 		}
 
-		ce.ErrorCode = resp.StatusCode
 		ce.ErrorSummary = string(bodyBytes)
 	}
 
