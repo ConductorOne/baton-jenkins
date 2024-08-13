@@ -12,9 +12,7 @@ var (
 )
 
 var relationships = []field.SchemaFieldRelationship{
-	field.FieldsMutuallyExclusive(token, username),
 	field.FieldsMutuallyExclusive(token, password),
-	field.FieldsRequiredTogether(username, password),
 }
 
 var configuration = field.NewConfiguration([]field.SchemaField{username, password, baseUrl, token}, relationships...)
