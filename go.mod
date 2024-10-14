@@ -3,7 +3,7 @@ module github.com/conductorone/baton-jenkins
 go 1.22.4
 
 require (
-	github.com/conductorone/baton-sdk v0.2.20
+	github.com/conductorone/baton-sdk v0.2.41
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
