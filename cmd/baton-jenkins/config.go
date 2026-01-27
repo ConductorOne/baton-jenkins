@@ -11,9 +11,14 @@ var (
 	token    = field.StringField("token", field.WithDescription("HTTP access tokens in Jenkins"))
 )
 
-var relationships = []field.SchemaFieldRelationship{
+var configFields = []field.SchemaField{username, password, baseUrl, token}
+
+var configRelations = []field.SchemaFieldRelationship{
 	field.FieldsMutuallyExclusive(token, password),
 	field.FieldsAtLeastOneUsed(token, password),
 }
 
-var configuration = field.NewConfiguration([]field.SchemaField{username, password, baseUrl, token}, relationships...)
+var configuration = field.Configuration{
+	Fields:      configFields,
+	Constraints: configRelations,
+}
