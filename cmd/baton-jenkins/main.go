@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"os"
 
-	configschema "github.com/conductorone/baton-sdk/pkg/config"
-	"github.com/conductorone/baton-sdk/pkg/connectorbuilder"
-	"github.com/conductorone/baton-sdk/pkg/types"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
+	cfg "github.com/conductorone/baton-jenkins/pkg/config"
 	"github.com/conductorone/baton-jenkins/pkg/client"
 	"github.com/conductorone/baton-jenkins/pkg/connector"
+	"github.com/conductorone/baton-sdk/pkg/config"
+	"github.com/conductorone/baton-sdk/pkg/connectorbuilder"
+	"github.com/conductorone/baton-sdk/pkg/connectorrunner"
+	"github.com/conductorone/baton-sdk/pkg/types"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"go.uber.org/zap"
 )
 
 var version = "dev"
@@ -21,7 +21,13 @@ var version = "dev"
 func main() {
 	ctx := context.Background()
 
-	_, cmd, err := configschema.DefineConfiguration(ctx, "baton-jenkins", getConnector, configuration)
+	_, cmd, err := config.DefineConfiguration(
+		ctx,
+		"baton-jenkins",
+		getConnector,
+		cfg.Config,
+		connectorrunner.WithDefaultCapabilitiesConnectorBuilder(&connector.Connector{}),
+	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
@@ -36,28 +42,28 @@ func main() {
 	}
 }
 
-func getConnector(ctx context.Context, v *viper.Viper) (types.ConnectorServer, error) {
+func getConnector(ctx context.Context, c *cfg.Jenkins) (types.ConnectorServer, error) {
 	l := ctxzap.Extract(ctx)
 	jenkinsClient := client.NewClient()
-	if v.GetString("token") != "" {
-		jenkinsClient.WithUser(v.GetString("username")).WithBearerToken(v.GetString("token"))
+	if c.Token != "" {
+		jenkinsClient.WithUser(c.Username).WithBearerToken(c.Token)
 	}
 
-	if v.GetString("username") != "" && v.GetString("password") != "" {
-		jenkinsClient.WithUser(v.GetString("username")).WithPassword(v.GetString("password"))
+	if c.Username != "" && c.Password != "" {
+		jenkinsClient.WithUser(c.Username).WithPassword(c.Password)
 	}
 
-	cb, err := connector.New(ctx, v.GetString("base-url"), jenkinsClient)
+	cb, err := connector.New(ctx, c.BaseUrl, jenkinsClient)
 	if err != nil {
 		l.Error("error creating connector", zap.Error(err))
 		return nil, err
 	}
 
-	c, err := connectorbuilder.NewConnector(ctx, cb)
+	conn, err := connectorbuilder.NewConnector(ctx, cb)
 	if err != nil {
 		l.Error("error creating connector", zap.Error(err))
 		return nil, err
 	}
 
-	return c, nil
+	return conn, nil
 }
