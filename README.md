@@ -1,6 +1,6 @@
 ![Baton Logo](./docs/images/baton-logo.png)
 
-# `baton-jenkins` [![Go Reference](https://pkg.go.dev/badge/github.com/conductorone/baton-jenkins.svg)](https://pkg.go.dev/github.com/conductorone/baton-jenkins) ![main ci](https://github.com/conductorone/baton-jenkins/actions/workflows/main.yaml/badge.svg)
+# `baton-jenkins` [![Go Reference](https://pkg.go.dev/badge/github.com/conductorone/baton-jenkins.svg)](https://pkg.go.dev/github.com/conductorone/baton-jenkins) ![ci](https://github.com/conductorone/baton-jenkins/actions/workflows/ci.yaml/badge.svg)
 
 `baton-jenkins` is a connector for jenkins built using the [Baton SDK](https://github.com/conductorone/baton-sdk). It communicates with the jenkins API to sync data about users and roles.
 
@@ -62,18 +62,18 @@ You should see the password in the following output.
 99b844a4ad13404796e1ab8bcf05edd1
 ```
 
-## Access Jenkins Web UI 
-At this point, Jenkins is installed and listens on port 8080. You can now access it using the URL [http://localhost:8080](http://localhost:8080). You should see the Jenkins initial setup password screen. 
-- Provide your password and click on the Continue button. You should see the customized Jenkins screen. 
-- Click on Install suggested plugins. You should see the Getting Started screen. 
-- Create your new admin user and click on the Save and Continue buttons. You should see the instance configuration screen. 
+## Access Jenkins Web UI
+At this point, Jenkins is installed and listens on port 8080. You can now access it using the URL [http://localhost:8080](http://localhost:8080). You should see the Jenkins initial setup password screen.
+- Provide your password and click on the Continue button. You should see the customized Jenkins screen.
+- Click on Install suggested plugins. You should see the Getting Started screen.
+- Create your new admin user and click on the Save and Continue buttons. You should see the instance configuration screen.
 - Click on the Save and Finish button
 
 You can then access the Jenkins admin server at [http://localhost:8080](http://localhost:8080) and login with the admin credentials you provided in the previous step.
 
 After you login you can create new resources to be synced by baton.
 
-After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below. 
+After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below.
 ```
 baton-jenkins --jenkins-username <user> --jenkins-password <password> --jenkins-baseurl <baseurl>
 ```
@@ -92,7 +92,7 @@ Provides the "People" view and API that were part of Jenkins up to version 2.451
 
 `Installation options`
 ```
-1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
+1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab.
 Locate this plugin by searching for people-view.
 2) Using the CLI tool: jenkins-plugin-cli --plugins people-view:1.2
 ```
@@ -102,7 +102,7 @@ Enables user authorization using a Role-Based strategy. Roles can be defined glo
 
 `Installation options`
 ```
-1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab. 
+1) Using the GUI: From your Jenkins dashboard navigate to Manage Jenkins > Manage Plugins and select the Available tab.
 Locate this plugin by searching for role-strategy.
 2) Using the CLI tool: jenkins-plugin-cli --plugins role-strategy:727.vd344b_eec783d
 ```
@@ -113,7 +113,7 @@ Locate this plugin by searching for role-strategy.
 - Users
 - Roles
 - Nodes
-- Jobs 
+- Jobs
 - Views
 
 # Contributing, Support and Issues
