@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 
 	"github.com/conductorone/baton-sdk/pkg/uhttp"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"go.uber.org/zap"
 )
 
 type JenkinsClient struct {
@@ -36,7 +39,8 @@ func (b *JenkinsError) Error() string {
 // GET - http://{baseurl}/computer/api/json?pretty&tree=computer[displayName,description,idle,manualLaunchAllowed,assignedLabels[name]]
 // GET - http://{baseurl}/api/json?pretty&tree=jobs[name,url,color,buildable]
 // GET - http://{baseurl}/api/json?pretty&tree=views[name,url]
-// GET - http://{baseurl}/asynchPeople/api/json?pretty&depth=3
+// GET - http://{baseurl}/asynchPeople/api/json?pretty&depth=3  (requires the People View plugin on Jenkins 2.452+)
+// GET - http://{baseurl}/crumbIssuer/api/json  (CSRF crumb for basic/password-auth POSTs)
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=globalRoles
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=projectRoles
 // GET - http://{baseurl}/role-strategy/strategy/getAllRoles?type=slaveRoles
@@ -49,6 +53,7 @@ const (
 	allJobs           = "api/json?pretty&tree=jobs[name,url,color,buildable]"
 	allViews          = "api/json?pretty&tree=views[name,url]"
 	allUsers          = "asynchPeople/api/json?pretty&depth=3"
+	crumbIssuer       = "crumbIssuer/api/json"
 	allGlobalRoles    = "role-strategy/strategy/getAllRoles?type=globalRoles"
 	allProjectRoles   = "role-strategy/strategy/getAllRoles?type=projectRoles"
 	allSlaveRoles     = "role-strategy/strategy/getAllRoles?type=slaveRoles"
@@ -167,6 +172,11 @@ func New(ctx context.Context, baseUrl string, jenkinsClient *JenkinsClient) (*Je
 	if err != nil {
 		return nil, err
 	}
+	// A cookie jar lets the CSRF crumb (used for basic/password-auth POSTs) be
+	// validated against the session established when the crumb was fetched.
+	if jar, jerr := cookiejar.New(nil); jerr == nil {
+		httpClient.Jar = jar
+	}
 
 	cli := uhttp.NewBaseHttpClient(httpClient)
 	if !isValidUrl(baseUrl) {
@@ -241,6 +251,40 @@ func WithBody(body string) uhttp.RequestOption {
 	}
 }
 
+// getCrumb fetches a CSRF crumb for the current session. Token auth bypasses
+// CSRF so this is only needed for basic/password auth. Returns empty values
+// (and no error) when the crumb issuer is disabled.
+func getCrumb(ctx context.Context, cli *JenkinsClient) (string, string, error) {
+	endpointUrl := fmt.Sprintf("%s/%s", cli.baseUrl, crumbIssuer)
+	uri, err := url.Parse(endpointUrl)
+	if err != nil {
+		return "", "", err
+	}
+	req, err := cli.httpClient.NewRequest(ctx,
+		http.MethodGet,
+		uri,
+		uhttp.WithAcceptJSONHeader(),
+		WithAuthorization(cli.getUser(), cli.getPWD(), cli.getToken()),
+	)
+	if err != nil {
+		return "", "", err
+	}
+	var crumb struct {
+		Crumb             string `json:"crumb"`
+		CrumbRequestField string `json:"crumbRequestField"`
+	}
+	resp, err := cli.httpClient.Do(req, uhttp.WithJSONResponse(&crumb))
+	if err != nil {
+		// Crumb issuer disabled (404) => CSRF not enforced; no crumb needed.
+		if resp != nil && resp.StatusCode == http.StatusNotFound {
+			return "", "", nil
+		}
+		return "", "", err
+	}
+	defer resp.Body.Close()
+	return crumb.CrumbRequestField, crumb.Crumb, nil
+}
+
 func getPostRequest(ctx context.Context, cli *JenkinsClient, baseUrl, apiUrl, body string) (*http.Request, string, error) {
 	endpointUrl := fmt.Sprintf("%s/%s", baseUrl, apiUrl)
 	uri, err := url.Parse(endpointUrl)
@@ -257,6 +301,17 @@ func getPostRequest(ctx context.Context, cli *JenkinsClient, baseUrl, apiUrl, bo
 	)
 	if err != nil {
 		return nil, "", err
+	}
+
+	// Token auth bypasses CSRF; basic/password auth requires a crumb header.
+	if cli.getToken() == "" {
+		field, crumb, cerr := getCrumb(ctx, cli)
+		if cerr != nil {
+			return nil, "", cerr
+		}
+		if field != "" {
+			req.Header.Set(field, crumb)
+		}
 	}
 
 	return req, endpointUrl, nil
@@ -345,6 +400,11 @@ func (d *JenkinsClient) GetViews(ctx context.Context) ([]View, error) {
 
 // GetUsers
 // Get all users.
+//
+// This reads the asynchPeople JSON API. Jenkins 2.452 removed that endpoint
+// from core; installing the People View plugin
+// (https://plugins.jenkins.io/people-view/) restores it. A 404 here almost
+// always means the plugin is missing on a newer Jenkins, so we say so.
 func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 	var userData UsersAPIData
 	req, endpointUrl, err := getRequest(ctx, d, d.baseUrl, allUsers)
@@ -354,9 +414,14 @@ func (d *JenkinsClient) GetUsers(ctx context.Context) ([]Users, error) {
 
 	resp, err := d.httpClient.Do(req, uhttp.WithJSONResponse(&userData))
 	if err != nil {
-		return nil, getCustomError(err, resp, endpointUrl)
+		ce := getCustomError(err, resp, endpointUrl)
+		if ce.ErrorCode == http.StatusNotFound {
+			return nil, fmt.Errorf("baton-jenkins: the asynchPeople API returned 404 - "+
+				"Jenkins 2.452+ removed it from core; install the People View plugin "+
+				"(https://plugins.jenkins.io/people-view/) to restore it: %w", ce)
+		}
+		return nil, ce
 	}
-
 	defer resp.Body.Close()
 
 	return userData.Users, nil
@@ -407,25 +472,23 @@ func (d *JenkinsClient) GetRoles(ctx context.Context, apiUrl string) ([]RolesAPI
 // GetAllRoles
 // Get all roles.
 func (d *JenkinsClient) GetAllRoles(ctx context.Context) ([]RolesAPIData, error) {
-	var allRoles []RolesAPIData
-	roles, err := d.GetRoles(ctx, allGlobalRoles)
-	if err != nil {
-		return nil, err
+	l := ctxzap.Extract(ctx)
+	allRoles := make([]RolesAPIData, 0)
+	// The Role-Based Strategy plugin is optional. If its endpoints are absent
+	// (404) we skip roles/groups; any other error is propagated.
+	for _, apiUrl := range []string{allGlobalRoles, allProjectRoles, allSlaveRoles} {
+		roles, err := d.GetRoles(ctx, apiUrl)
+		if err != nil {
+			var je *JenkinsError
+			if errors.As(err, &je) && je.ErrorCode == http.StatusNotFound {
+				l.Warn("baton-jenkins: role endpoint not found; skipping (Role-Based Strategy plugin not installed?)",
+					zap.String("endpoint", apiUrl))
+				continue
+			}
+			return nil, err
+		}
+		allRoles = append(allRoles, roles...)
 	}
-
-	allRoles = append(allRoles, roles...)
-	roles, err = d.GetRoles(ctx, allProjectRoles)
-	if err != nil {
-		return nil, err
-	}
-
-	allRoles = append(allRoles, roles...)
-	roles, err = d.GetRoles(ctx, allSlaveRoles)
-	if err != nil {
-		return nil, err
-	}
-
-	allRoles = append(allRoles, roles...)
 	return allRoles, nil
 }
 
