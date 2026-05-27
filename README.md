@@ -75,11 +75,11 @@ After you login you can create new resources to be synced by baton.
 
 After creating new resources on the Jenkins server, use the baton-jenkins cli to sync the data from the server with the example command below.
 ```
-baton-jenkins --jenkins-username <user> --jenkins-password <password> --jenkins-baseurl <baseurl>
+baton-jenkins --base-url <baseurl> --username <user> --password <password>
 ```
 You can also use a token instead of user/password
 ```
-baton-jenkins --jenkins-username <user> --jenkins-token <token> --jenkins-baseurl <baseurl>
+baton-jenkins --base-url <baseurl> --username <user> --token <token>
 ```
 
 After successfully syncing data, use the baton CLI to list the resources and see the synced data. baton resources baton stats
