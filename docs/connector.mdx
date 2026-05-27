@@ -143,7 +143,7 @@ spec:
     spec:
       containers:
       - name: baton-jenkins
-        image: ghcr.io/conductorone/baton-jenkins:latest
+        image: public.ecr.aws/conductorone/baton-jenkins:latest
         imagePullPolicy: IfNotPresent
         env:
         - name: BATON_HOST_ID
@@ -167,4 +167,3 @@ Check that the connector data uploaded correctly. In C1, click **Apps**. On the 
 **That's it!** Your Jenkins connector is now pulling access data into C1.
 </Tab>
 </Tabs>
-
