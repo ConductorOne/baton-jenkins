@@ -16,4 +16,4 @@ var relationships = []field.SchemaFieldRelationship{
 	field.FieldsAtLeastOneUsed(token, password),
 }
 
-var configuration = field.NewConfiguration([]field.SchemaField{username, password, baseUrl, token}, relationships...)
+var configuration = field.NewConfiguration([]field.SchemaField{username, password, baseUrl, token}, field.WithConstraints(relationships...))
