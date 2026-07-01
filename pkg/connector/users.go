@@ -34,7 +34,7 @@ func userResource(ctx context.Context, user client.Users, parentResourceID *v2.R
 		"user_id":    user.User.ID,
 	}
 
-	var userStatus v2.UserTrait_Status_Status = v2.UserTrait_Status_STATUS_ENABLED
+	userStatus := v2.UserTrait_Status_STATUS_ENABLED
 	userTraitOptions := []rs.UserTraitOption{
 		rs.WithUserProfile(profile),
 		rs.WithStatus(userStatus),
