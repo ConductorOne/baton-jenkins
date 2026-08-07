@@ -36,8 +36,6 @@ func userResource(ctx context.Context, user client.Users, parentResourceID *v2.R
 
 	userStatus := v2.UserTrait_Status_STATUS_ENABLED
 	userTraitOptions := []rs.UserTraitOption{
-		rs.WithUserProfile(profile),
-		rs.WithStatus(userStatus),
 		rs.WithEmail("", true),
 	}
 
@@ -46,6 +44,8 @@ func userResource(ctx context.Context, user client.Users, parentResourceID *v2.R
 		resourceTypeUser,
 		user.User.ID,
 		userTraitOptions,
+		rs.WithResourceProfile(profile),
+		rs.WithResourceStatus(v2.Status_ResourceStatus(userStatus), ""),
 		rs.WithParentResourceID(parentResourceID),
 	)
 	if err != nil {

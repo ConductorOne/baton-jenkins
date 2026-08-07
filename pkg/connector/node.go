@@ -22,15 +22,14 @@ func nodeResource(ctx context.Context, role client.Computer, parentResourceID *v
 		"node_name": role.AssignedLabels[0].Name,
 	}
 
-	groupTraitOptions := []rs.GroupTraitOption{
-		rs.WithGroupProfile(profile),
-	}
+	groupTraitOptions := []rs.GroupTraitOption{}
 
 	ret, err := rs.NewGroupResource(
 		role.AssignedLabels[0].Name,
 		resourceTypeNode,
 		role.AssignedLabels[0].Name,
 		groupTraitOptions,
+		rs.WithResourceProfile(profile),
 		rs.WithParentResourceID(parentResourceID),
 	)
 	if err != nil {

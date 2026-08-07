@@ -22,15 +22,14 @@ func jobResource(ctx context.Context, job client.Job, parentResourceID *v2.Resou
 		"node_name": job.Name,
 	}
 
-	groupTraitOptions := []rs.GroupTraitOption{
-		rs.WithGroupProfile(profile),
-	}
+	groupTraitOptions := []rs.GroupTraitOption{}
 
 	ret, err := rs.NewGroupResource(
 		job.Name,
 		resourceTypeJob,
 		job.Name,
 		groupTraitOptions,
+		rs.WithResourceProfile(profile),
 		rs.WithParentResourceID(parentResourceID),
 	)
 	if err != nil {

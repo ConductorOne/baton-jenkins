@@ -22,15 +22,14 @@ func viewResource(ctx context.Context, view client.View, parentResourceID *v2.Re
 		"node_name": view.Name,
 	}
 
-	groupTraitOptions := []rs.GroupTraitOption{
-		rs.WithGroupProfile(profile),
-	}
+	groupTraitOptions := []rs.GroupTraitOption{}
 
 	ret, err := rs.NewGroupResource(
 		view.Name,
 		resourceTypeView,
 		view.Name,
 		groupTraitOptions,
+		rs.WithResourceProfile(profile),
 		rs.WithParentResourceID(parentResourceID),
 	)
 	if err != nil {
