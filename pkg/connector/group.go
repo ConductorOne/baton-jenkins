@@ -34,15 +34,14 @@ func groupResource(ctx context.Context, group client.Group, parentResourceID *v2
 		"group_name": group.ID,
 	}
 
-	groupTraitOptions := []rs.GroupTraitOption{
-		rs.WithGroupProfile(profile),
-	}
+	groupTraitOptions := []rs.GroupTraitOption{}
 
 	ret, err := rs.NewGroupResource(
 		group.ID,
 		resourceTypeGroup,
 		group.ID,
 		groupTraitOptions,
+		rs.WithResourceProfile(profile),
 		rs.WithParentResourceID(parentResourceID),
 	)
 	if err != nil {

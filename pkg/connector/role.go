@@ -31,15 +31,14 @@ func roleResource(ctx context.Context, role string, parentResourceID *v2.Resourc
 		"node_name": role,
 	}
 
-	groupTraitOptions := []rs.GroupTraitOption{
-		rs.WithGroupProfile(profile),
-	}
+	groupTraitOptions := []rs.GroupTraitOption{}
 
 	ret, err := rs.NewGroupResource(
 		role,
 		resourceTypeRole,
 		role,
 		groupTraitOptions,
+		rs.WithResourceProfile(profile),
 		rs.WithParentResourceID(parentResourceID),
 	)
 	if err != nil {
