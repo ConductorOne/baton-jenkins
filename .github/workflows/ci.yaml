@@ -68,7 +68,7 @@ jobs:
           # tar xvfz jenkins-backup.tar.gz $JENKINS_HOME
           # tar xvfz jenkins-credentials.tar.gz /var/jenkins_home/secrets/
       - name: Install baton
-        run: ./scripts/get-baton.sh && mv baton /usr/local/bin
+        uses: ConductorOne/github-workflows/actions/get-baton@v4
       # - name: Run baton-jenkins
         # run: ./baton-jenkins --log-level=debug --jenkins-username adminuser --jenkins-token ${{ env.BATON_JENKINS_TOKEN }}
       
