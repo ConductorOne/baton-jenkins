@@ -19,7 +19,7 @@ baton resources
 ## docker
 
 ```
-docker run --rm -v $(pwd):/out -e BATON_JENKINS_USERNAME=userID -e BATON_JENKINS_TOKEN=apiKey -e BATON_JENKINS_BASEURL=baseurl ghcr.io/conductorone/baton-jenkins:latest -f "/out/sync.c1z"
+docker run --rm -v $(pwd):/out -e BATON_JENKINS_USERNAME=userID -e BATON_JENKINS_TOKEN=apiKey -e BATON_JENKINS_BASEURL=baseurl public.ecr.aws/conductorone/baton-jenkins:latest -f "/out/sync.c1z"
 docker run --rm -v $(pwd):/out ghcr.io/conductorone/baton:latest -f "/out/sync.c1z" resources
 ```
 
